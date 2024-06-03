@@ -7,10 +7,7 @@ import pickle
 
 #test
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((socket.gethostname(), 1234))
-s.listen(5)
-clientsocket, address = s.accept()
+
 
 def quaternion_to_euler(q):
     w, x, y, z = q
@@ -22,7 +19,7 @@ def quaternion_to_euler(q):
     return roll, pitch, yaw
 
 def recorder():
-    global position1, rotation1, position2, rotation2, server_socket
+    global position1, rotation1, position2, rotation2, server_socket, address, clientsocket
 
     print(f"Connection from {address} has been established!")
     clientsocket.send(bytes(f"{position1[0], position1[1], position1[2], rotation1[0], rotation1[1], rotation1[2], rotation1[3], position2[0], position2[1], position2[2], rotation2[0], rotation2[1], rotation2[2], rotation2[3]}", "utf-8"))
@@ -39,13 +36,19 @@ class OmniControls(BehaviorScript):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
 
     def on_play(self):
-        global start_t, server_socket, client_sockets
+        global start_t, server_socket, client_sockets, address, clientsocket
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), 1234))
+        s.listen(5)
+        clientsocket, address = s.accept()
 
         # print(f"{__class__.__name__}.on_play()->{self.prim_path}")
         print("CONTROLS TEST PLAY")
         self.Flask = False
         self.roll = 0
         start_t = time.time()
+
 
     def on_pause(self):
         # print(f"{__class__.__name__}.on_pause()->{self.prim_path}")

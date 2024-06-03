@@ -7,7 +7,7 @@ using System.Text;
 public class SocketClient2 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "192.168.137.1"; // Replace with your server IP
+    private const string serverIP = "10.97.144.82"; // Replace with your server IP
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data
@@ -38,6 +38,8 @@ public class SocketClient2 : MonoBehaviour
             targetObject2.transform.position = newPosition2;
             targetObject2.transform.rotation = newRotation2;
         }
+
+        
     }
 
     private void ConnectToServer()
