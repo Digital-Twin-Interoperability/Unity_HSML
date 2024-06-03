@@ -5,7 +5,7 @@ import time
 import socket
 import pickle
 
-#test
+# Test
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((socket.gethostname(), 1234))
@@ -59,28 +59,22 @@ class OmniControls(BehaviorScript):
         # print(f"{__class__.__name__}.on_update(current_time={current_time}, delta_time={delta_time})->{self.prim_path}")
         global position1, rotation1, position2, rotation2, server_socket, client_sockets
 
-        # Get world position for the first prim
+        # Get world transform for the first prim
         xform1 = UsdGeom.Xformable(self._prim1)
         transform1 = xform1.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
         position1 = transform1.ExtractTranslation()
-
-        # Get values for the first prim
-        rotate1 = self._prim1.GetAttribute("xformOp:orient").Get()
-        rotation_r1, i1 = rotate1.GetReal(), rotate1.GetImaginary()
-        rotation_i1 = list(i1)
-        rotation1 = [rotation_r1, rotation_i1[0], rotation_i1[1], rotation_i1[2]]
+        rotation_matrix1 = transform1.ExtractRotationMatrix()
+        rotation_quat1 = Gf.Quatf(rotation_matrix1.GetQuat())
+        rotation1 = [rotation_quat1.GetReal(), rotation_quat1.GetImaginary()[0], rotation_quat1.GetImaginary()[1], rotation_quat1.GetImaginary()[2]]
         roll1, pitch1, yaw1 = quaternion_to_euler(rotation1)
 
-        # Get world position for the second prim
+        # Get world transform for the second prim
         xform2 = UsdGeom.Xformable(self._prim2)
         transform2 = xform2.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
         position2 = transform2.ExtractTranslation()
-
-        # Get values for the second prim
-        rotate2 = self._prim2.GetAttribute("xformOp:orient").Get()
-        rotation_r2, i2 = rotate2.GetReal(), rotate2.GetImaginary()
-        rotation_i2 = list(i2)
-        rotation2 = [rotation_r2, rotation_i2[0], rotation_i2[1], rotation_i2[2]]
+        rotation_matrix2 = transform2.ExtractRotationMatrix()
+        rotation_quat2 = Gf.Quatf(rotation_matrix2.GetQuat())
+        rotation2 = [rotation_quat2.GetReal(), rotation_quat2.GetImaginary()[0], rotation_quat2.GetImaginary()[1], rotation_quat2.GetImaginary()[2]]
         roll2, pitch2, yaw2 = quaternion_to_euler(rotation2)
 
         # Print world positions and rotations
