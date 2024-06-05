@@ -5,6 +5,10 @@ import time
 import socket
 import pickle
 
+from pxr import Gf
+import omni.usd
+
+
 #position, orientation = prim.get_world_pose()
 
 
@@ -29,8 +33,9 @@ class OmniControls(BehaviorScript):
         # print(f"{__class__.__name__}.on_init()->{self.prim_path}")
         timeline_stream = self.timeline.get_timeline_event_stream()
         print("CONTROLS TEST INIT")
-        self._prim1 = self.stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
-        self._prim2 = self.stage.GetPrimAtPath("/World/CADRE_2/Chassis")
+
+        #self._prim1 = self.stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
+        #self._prim2 = self.stage.GetPrimAtPath("/World/CADRE_2/Chassis")
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
@@ -62,9 +67,28 @@ class OmniControls(BehaviorScript):
         global position1, rotation1, position2, rotation2, server_socket, client_sockets
 
 
-        position3, orientation3 = self.get_world_pose(self._prim1)
+        #position3, orientation3 = prim3.get_world_pose()
 
 
-        print("World Position:", position3)
+        #print("World Position:", Matrix4d)
 
         #recorder()
+
+        stage = omni.usd.get_context().get_stage()
+        prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
+        matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
+        translate: Gf.Vec3d = matrix.ExtractTranslation()
+        rotationBot1: Gf.Rotation = matrix.ExtractRotation()
+
+        prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
+        matrix2: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim2)
+        translate2: Gf.Vec3d = matrix2.ExtractTranslation()
+        rotationBot2: Gf.Rotation = matrix2.ExtractRotation()
+
+        print("World Position 1:", translate)
+        print("World Rotation 1:", rotationBot1)
+        print("World Position 2:", translate2)
+        print("World Rotation 2:", rotationBot2)
+
+
+
