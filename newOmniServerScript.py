@@ -23,13 +23,15 @@ def quaternion_to_euler(q):
     return roll, pitch, yaw
 
 def recorder():
-    global position1, rotation1, position2, rotation2, server_socket, address, clientsocket
+    global finalTransform1, finalRotation1, finalTransform2, finalRotation2, server_socket, address, clientsocket
 
     print(f"Connection from {address} has been established!")
-    clientsocket.send(bytes(f"{position1[0], position1[1], position1[2], rotation1[0], rotation1[1], rotation1[2], rotation1[3], position2[0], position2[1], position2[2], rotation2[0], rotation2[1], rotation2[2], rotation2[3]}", "utf-8"))
+    clientsocket.send(bytes(f"{finalTransform1, finalRotation1, finalTransform2, finalRotation2}", "utf-8"))
 
 class OmniControls(BehaviorScript):
     def on_init(self):
+
+        global prim,prim2
         # print(f"{__class__.__name__}.on_init()->{self.prim_path}")
         timeline_stream = self.timeline.get_timeline_event_stream()
         print("CONTROLS TEST INIT")
@@ -37,16 +39,20 @@ class OmniControls(BehaviorScript):
         #self._prim1 = self.stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
         #self._prim2 = self.stage.GetPrimAtPath("/World/CADRE_2/Chassis")
 
+        stage = omni.usd.get_context().get_stage()
+        prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
+        prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
+
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
 
     def on_play(self):
         global start_t, server_socket, client_sockets, address, clientsocket
 
-        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #s.bind((socket.gethostname(), 1234))
-        #s.listen(5)
-        #clientsocket, address = s.accept()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), 1234))
+        s.listen(5)
+        clientsocket, address = s.accept()
 
         # print(f"{__class__.__name__}.on_play()->{self.prim_path}")
         print("CONTROLS TEST PLAY")
@@ -64,31 +70,27 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST END")
     def on_update(self, current_time: float, delta_time: float):
         # print(f"{__class__.__name__}.on_update(current_time={current_time}, delta_time={delta_time})->{self.prim_path}")
-        global position1, rotation1, position2, rotation2, server_socket, client_sockets
+        global finalTransform1, finalRotation1, finalTransform2, finalRotation2, server_socket, client_sockets
 
 
-        #position3, orientation3 = prim3.get_world_pose()
-
-
-        #print("World Position:", Matrix4d)
-
-        #recorder()
-
-        stage = omni.usd.get_context().get_stage()
-        prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
         matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
         translate: Gf.Vec3d = matrix.ExtractTranslation()
         rotationBot1: Gf.Rotation = matrix.ExtractRotation()
 
-        prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
         matrix2: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim2)
         translate2: Gf.Vec3d = matrix2.ExtractTranslation()
         rotationBot2: Gf.Rotation = matrix2.ExtractRotation()
 
-        print("World Position 1:", translate)
-        print("World Rotation 1:", rotationBot1)
-        print("World Position 2:", translate2)
-        print("World Rotation 2:", rotationBot2)
+        finalTransform1 = str(translate)
+        finalRotation1 = str(rotationBot1)
+        finalTransform2 = str(translate2)
+        finalRotation2 = str(rotationBot2)
 
+        print("World Position 1:", finalTransform1)
+        print("World Rotation 1:", finalRotation1)
+        print("World Position 2:", finalTransform2)
+        print("World Rotation 2:", finalRotation2)
+
+        recorder()
 
 
