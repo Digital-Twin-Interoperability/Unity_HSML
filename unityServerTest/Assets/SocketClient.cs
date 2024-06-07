@@ -7,7 +7,7 @@ using System.Text;
 public class SocketClient : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "192.168.137.1"; // Replace with your server IP
+    private const string serverIP = "10.97.144.82"; // Replace with your server IP
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[1024];
@@ -83,8 +83,8 @@ public class SocketClient : MonoBehaviour
                         z /= 100.0f;
 
                         // Update the new position and rotation
-                        newPosition = new Vector3(x, -y, z);
-                        newRotation = new Quaternion(rz, ry, rx, w);
+                        newPosition = new Vector3(-x, y, z);
+                        newRotation = new Quaternion(rx, ry, rz, w);
                     }
                     else
                     {

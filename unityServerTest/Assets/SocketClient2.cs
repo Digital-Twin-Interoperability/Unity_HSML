@@ -80,15 +80,15 @@ public class SocketClient2 : MonoBehaviour
                     if (float.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x1) &&
                         float.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y1) &&
                         float.TryParse(parts[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z1) &&
-                        float.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx1) &&
-                        float.TryParse(parts[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry1) &&
-                        float.TryParse(parts[5], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz1) &&
-                        float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1))
+                        float.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1) &&
+                        float.TryParse(parts[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx1) &&
+                        float.TryParse(parts[5], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry1) &&
+                        float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz1))
                     {
                         // Convert from cm to meters
-                        x1 /= 100.0f;
-                        y1 /= 100.0f;
-                        z1 /= 100.0f;
+                        //x1 /= 100.0f;
+                        //y1 /= 100.0f;
+                        //1 /= 100.0f;
 
                         // Update the new position and rotation for the first object
                         newPosition1 = new Vector3(-x1, y1, z1);
@@ -107,15 +107,15 @@ public class SocketClient2 : MonoBehaviour
                     if (float.TryParse(parts[7], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x2) &&
                         float.TryParse(parts[8], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y2) &&
                         float.TryParse(parts[9], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z2) &&
-                        float.TryParse(parts[10], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx2) &&
-                        float.TryParse(parts[11], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry2) &&
-                        float.TryParse(parts[12], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz2) &&
-                        float.TryParse(parts[13], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w2))
+                        float.TryParse(parts[10], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w2) &&
+                        float.TryParse(parts[11], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx2) &&
+                        float.TryParse(parts[12], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry2) &&
+                        float.TryParse(parts[13], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz2))
                     {
                         // Convert from cm to meters
-                        x2 /= 100.0f;
-                        y2 /= 100.0f;
-                        z2 /= 100.0f;
+                        //x2 /= 100.0f;
+                        //y2 /= 100.0f;
+                        //z2 /= 100.0f;
 
                         // Update the new position and rotation for the second object
                         newPosition2 = new Vector3(-x2, y2, z2);

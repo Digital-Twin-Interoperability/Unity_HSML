@@ -40,8 +40,8 @@ class OmniControls(BehaviorScript):
         #self._prim2 = self.stage.GetPrimAtPath("/World/CADRE_2/Chassis")
 
         stage = omni.usd.get_context().get_stage()
-        prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
-        prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
+        prim = stage.GetPrimAtPath("/World/Viper_Dynamic_Version_v4")
+        prim2 = stage.GetPrimAtPath("/World/Cubert")
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
