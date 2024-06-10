@@ -34,10 +34,10 @@ class OmniControls(BehaviorScript):
     def on_play(self):
         global start_t, server_socket, client_sockets, address, clientsocket
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((socket.gethostname(), 1234))
-        s.listen(5)
-        clientsocket, address = s.accept()
+        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #s.bind((socket.gethostname(), 1234))
+        #s.listen(5)
+        #clientsocket, address = s.accept()
 
         # print(f"{__class__.__name__}.on_play()->{self.prim_path}")
         print("CONTROLS TEST PLAY")
@@ -92,4 +92,4 @@ class OmniControls(BehaviorScript):
         print("Prim 2 World Position and Rotation:")
         print("World Position:", position2)
 
-        recorder()
+        #recorder()
