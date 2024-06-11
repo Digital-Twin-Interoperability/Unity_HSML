@@ -17,8 +17,9 @@ public class SocketClient2 : MonoBehaviour
 
     private Vector3 newPosition1;
     private Quaternion newRotation1;
-    private Vector3 newPosition2;
-    private Quaternion newRotation2;
+
+    private float messageInterval = 0.01f; // Interval in seconds between messages
+    private float timeSinceLastMessage = 0f;
 
     void Start()
     {
@@ -33,10 +34,23 @@ public class SocketClient2 : MonoBehaviour
             targetObject1.transform.position = targetObject1.transform.parent.TransformPoint(newPosition1);
             targetObject1.transform.rotation = targetObject1.transform.parent.rotation * newRotation1;
         }
-        if (targetObject2 != null)
+
+        // Increment the time since the last message
+        timeSinceLastMessage += Time.deltaTime;
+
+        // Check if the interval has passed
+        if (timeSinceLastMessage >= messageInterval)
         {
-            targetObject2.transform.position = targetObject2.transform.parent.TransformPoint(newPosition2);
-            targetObject2.transform.rotation = targetObject2.transform.parent.rotation * newRotation2;
+            // Send the position and rotation of targetObject2
+            if (targetObject2 != null)
+            {
+                Vector3 position = targetObject2.transform.position;
+                Quaternion rotation = targetObject2.transform.rotation;
+                SendMessageToServer($"{position.x},{position.y},{position.z},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
+            }
+
+            // Reset the timer
+            timeSinceLastMessage = 0f;
         }
     }
 
@@ -72,23 +86,23 @@ public class SocketClient2 : MonoBehaviour
                 Debug.Log(message);
                 //Debug.Log("Parsed parts: " + string.Join(", ", parts));
 
-                // Parse XYZ data for two objects
-                if (parts.Length == 14)
+                // Parse XYZ data for one object
+                if (parts.Length == 7)
                 {
                     // Parse first object's position and rotation
-                    float x1, y1, z1, w1, rx1, ry1, rz1;
+                    float x1, y1, z1, rx1, ry1, rz1, w1;
                     if (float.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x1) &&
                         float.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y1) &&
                         float.TryParse(parts[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z1) &&
-                        float.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1) &&
-                        float.TryParse(parts[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx1) &&
-                        float.TryParse(parts[5], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry1) &&
-                        float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz1))
+                        float.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx1) &&
+                        float.TryParse(parts[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry1) &&
+                        float.TryParse(parts[5], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz1) &&
+                        float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1))
                     {
                         // Convert from cm to meters
-                        //x1 /= 100.0f;
-                        //y1 /= 100.0f;
-                        //1 /= 100.0f;
+                        x1 /= 100.0f;
+                        y1 /= 100.0f;
+                        z1 /= 100.0f;
 
                         // Update the new position and rotation for the first object
                         newPosition1 = new Vector3(-x1, y1, z1);
@@ -102,36 +116,10 @@ public class SocketClient2 : MonoBehaviour
                         Debug.LogError("Failed to parse first object's XYZW and quaternion data as float values!");
                     }
 
-                    // Parse second object's position and rotation
-                    float x2, y2, z2, w2, rx2, ry2, rz2;
-                    if (float.TryParse(parts[7], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x2) &&
-                        float.TryParse(parts[8], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y2) &&
-                        float.TryParse(parts[9], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z2) &&
-                        float.TryParse(parts[10], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w2) &&
-                        float.TryParse(parts[11], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx2) &&
-                        float.TryParse(parts[12], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry2) &&
-                        float.TryParse(parts[13], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz2))
-                    {
-                        // Convert from cm to meters
-                        //x2 /= 100.0f;
-                        //y2 /= 100.0f;
-                        //z2 /= 100.0f;
-
-                        // Update the new position and rotation for the second object
-                        newPosition2 = new Vector3(-x2, y2, z2);
-                        //newRotation2 = new Quaternion(rx2, ry2, rz2, w2);
-
-                        Vector3 axis2 = new Vector3(rx2, ry2, rz2).normalized;
-                        newRotation2 = Quaternion.AngleAxis(w2, axis2);
-                    }
-                    else
-                    {
-                        Debug.LogError("Failed to parse second object's XYZW and quaternion data as float values!");
-                    }
                 }
                 else
                 {
-                    Debug.LogError("Received message does not contain valid data for two objects!");
+                    Debug.LogError("Received message does not contain valid data for the object!");
                 }
             }
             clientSocket.BeginReceive(receiveBuffer, 0, receiveBuffer.Length, SocketFlags.None, ReceiveCallback, null);
@@ -139,6 +127,19 @@ public class SocketClient2 : MonoBehaviour
         catch (Exception e)
         {
             Debug.Log("Receive callback exception: " + e.ToString());
+        }
+    }
+
+    private void SendMessageToServer(string message)
+    {
+        try
+        {
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            clientSocket.Send(data);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Send message exception: " + e.ToString());
         }
     }
 
