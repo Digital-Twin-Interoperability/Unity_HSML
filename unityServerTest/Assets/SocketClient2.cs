@@ -25,6 +25,8 @@ public class SocketClient2 : MonoBehaviour
     {
         clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         ConnectToServer();
+
+        //SendMessageToServer($"dsibfdskjfbsdbfsdbf");
     }
 
     void Update()
@@ -46,7 +48,7 @@ public class SocketClient2 : MonoBehaviour
             {
                 Vector3 position = targetObject2.transform.position;
                 Quaternion rotation = targetObject2.transform.rotation;
-                SendMessageToServer($"{position.x},{position.y},{position.z},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
+                SendMessageToServer($"Rover1,{position.x},{position.y},{position.z},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
             }
 
             // Reset the timer
