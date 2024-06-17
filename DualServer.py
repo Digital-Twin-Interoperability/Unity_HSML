@@ -16,7 +16,7 @@ def parse_message(message):
     return Gf.Vec3d(x, y, z), Gf.Quatf(w, rx, ry, rz)
 
 def recorder():
-    global finalTransform1, finalRotation1, finalTransform2, finalRotation2, clientsocket
+    global finalTransform1, finalRotation1, finalTransform3, finalRotation3, clientsocket
 
     print(f"Connection from {address} has been established!")
     clientsocket.send(bytes(f"{finalTransform1, finalRotation1}", "utf-8"))
@@ -28,13 +28,14 @@ def recorder():
 
 class OmniControls(BehaviorScript):
     def on_init(self):
-        global prim, prim2
+        global prim, prim2, prim3
         timeline_stream = self.timeline.get_timeline_event_stream()
         print("CONTROLS TEST INIT")
 
         stage = omni.usd.get_context().get_stage()
         prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
         prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/CADRE_2"))
+        prim3 = stage.GetPrimAtPath("/World/bigRock/World/Anorthosite_Rock__1_meter__1/Anorthosite_Rock__1_meter__1")
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
@@ -59,17 +60,36 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST END")
 
     def on_update(self, current_time: float, delta_time: float):
-        global finalTransform1, finalRotation1, finalTransform2, finalRotation2
+        global finalTransform1, finalRotation1, finalTransform3, finalRotation3
 
         matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
         translate: Gf.Vec3d = matrix.ExtractTranslation()
         rotationBot1: Gf.Rotation = matrix.ExtractRotation()
 
+        # Convert translation to left-handed coordinate system
+        translate[0] = -translate[0]
+        translate[1] = -translate[1]
+
+        # Convert rotation to left-handed coordinate system
+        quat = rotationBot1.GetQuat()
+        quat = Gf.Quatd(quat.GetReal(), -quat.GetImaginary()[0], -quat.GetImaginary()[1], -quat.GetImaginary()[2])
+        rotationBot1 = Gf.Rotation(quat)
+
+        matrix3: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim3)
+        translate3: Gf.Vec3d = matrix3.ExtractTranslation()
+        rotationBot3: Gf.Rotation = matrix3.ExtractRotation()
+
         finalTransform1 = str(translate)
         finalRotation1 = str(rotationBot1)
 
+        finalTransform3 = str(translate3)
+        finalRotation3 = str(rotationBot3)
+
         print("World Position 1:", finalTransform1)
         print("World Rotation 1:", finalRotation1)
+
+        print("World Position 1:", finalTransform3)
+        print("World Rotation 1:", finalRotation3)
 
         message_str = recorder()
 
