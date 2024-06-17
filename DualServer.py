@@ -1,18 +1,19 @@
 from omni.kit.scripting import BehaviorScript
 from pxr import Gf, UsdGeom, Usd
-import math
 import time
 import socket
 import omni.usd
 
-def quaternion_to_euler(q):
-    w, x, y, z = q
-
-    roll = math.atan2(2 * (w * x + y * z), 1 - 2 * (x**2 + y**2))
-    pitch = math.asin(2 * (w * y - z * x))
-    yaw = math.atan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
-
-    return roll, pitch, yaw
+def parse_message(message):
+    # Split the message by comma and discard the first value (title)
+    data = message.split(',')
+    print("Parsed data:", data)
+    if len(data) != 8:
+        raise ValueError(f"Expected 8 values in the message, but got {len(data)}")
+    # Convert the remaining values to floats
+    x, y, z = float(data[1]), float(data[2]), float(data[3])
+    rx, ry, rz, w = float(data[4]), float(data[5]), float(data[6]), float(data[7])
+    return Gf.Vec3d(x, y, z), Gf.Quatf(w, rx, ry, rz)
 
 def recorder():
     global finalTransform1, finalRotation1, finalTransform2, finalRotation2, clientsocket
@@ -23,40 +24,7 @@ def recorder():
     message = clientsocket.recv(1024)  # Buffer size is 1024 bytes
     message_str = message.decode("utf-8")
     print("Received message from client:", message_str)
-
-    # Parse the message
-    parts = message_str.split(',')
-    if len(parts) == 8 and parts[0] == "Rover1":
-        try:
-            x = float(parts[1])
-            y = float(parts[2])
-            z = float(parts[3])
-            rx = float(parts[4])
-            ry = float(parts[5])
-            rz = float(parts[6])
-            w = float(parts[7])
-            transform_position_and_rotation(x, y, z, rx, ry, rz, w)
-        except ValueError as e:
-            print(f"Error parsing float values: {e}")
-    else:
-        print("Invalid message format")
-
-def transform_position_and_rotation(x, y, z, rx, ry, rz, w):
-    global prim2
-    #stage = omni.usd.get_context().get_stage()
-    #prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
-
-    # Set the new translation
-    #xformable = UsdGeom.Xformable(prim2)
-    #translate_op = xformable.GetOrderedXformOps()[0]
-    #translate_op.Set(Gf.Vec3d(x, y, z))
-
-    # Convert quaternion to euler
-    #euler_rotation = quaternion_to_euler((w, rx, ry, rz))
-
-    # Set the new rotation
-    #rotation_op = xformable.GetOrderedXformOps()[1]
-    #rotation_op.Set(Gf.Vec3d(math.degrees(euler_rotation[0]), math.degrees(euler_rotation[1]), math.degrees(euler_rotation[2])))
+    return message_str
 
 class OmniControls(BehaviorScript):
     def on_init(self):
@@ -66,7 +34,7 @@ class OmniControls(BehaviorScript):
 
         stage = omni.usd.get_context().get_stage()
         prim = stage.GetPrimAtPath("/World/CADRE_Demo/Chassis")
-        prim2 = stage.GetPrimAtPath("/World/CADRE_2/Chassis")
+        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/CADRE_2"))
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
@@ -103,4 +71,26 @@ class OmniControls(BehaviorScript):
         print("World Position 1:", finalTransform1)
         print("World Rotation 1:", finalRotation1)
 
-        recorder()
+        message_str = recorder()
+
+        try:
+            # Parse the message to get position and rotation
+            position, rotation = parse_message(message_str)
+
+            # Apply the translation and rotation to prim2
+            xform = UsdGeom.Xformable(prim2)
+            transform_ops = xform.GetOrderedXformOps()
+
+            if not transform_ops:
+                xform.AddTranslateOp().Set(position)
+                xform.AddOrientOp().Set(Gf.Quatf(rotation.GetReal(), rotation.GetImaginary()))
+            else:
+                for op in transform_ops:
+                    if op.GetOpType() == UsdGeom.XformOp.TypeTranslate:
+                        op.Set(position)
+                    elif op.GetOpType() == UsdGeom.XformOp.TypeOrient:
+                        op.Set(Gf.Quatf(rotation.GetReal(), rotation.GetImaginary()))
+        except ValueError as e:
+            print(f"Error parsing message: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")

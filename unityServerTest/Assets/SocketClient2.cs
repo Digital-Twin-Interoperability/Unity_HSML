@@ -7,7 +7,7 @@ using System.Text;
 public class SocketClient2 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "10.97.144.82"; // Replace with your server IP
+    private const string serverIP = "192.168.137.1";
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data
@@ -18,15 +18,13 @@ public class SocketClient2 : MonoBehaviour
     private Vector3 newPosition1;
     private Quaternion newRotation1;
 
-    private float messageInterval = 0.01f; // Interval in seconds between messages
+    private float messageInterval = 0.07f; // Interval in seconds between messages
     private float timeSinceLastMessage = 0f;
 
     void Start()
     {
         clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         ConnectToServer();
-
-        //SendMessageToServer($"dsibfdskjfbsdbfsdbf");
     }
 
     void Update()
@@ -48,7 +46,13 @@ public class SocketClient2 : MonoBehaviour
             {
                 Vector3 position = targetObject2.transform.position;
                 Quaternion rotation = targetObject2.transform.rotation;
-                SendMessageToServer($"Rover1,{position.x},{position.y},{position.z},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
+
+                // Multiply each value of XYZ by 100 before sending
+                float posX = position.x * -100;
+                float posY = position.y * 100;
+                float posZ = position.z * 100;
+
+                SendMessageToServer($"Rover1,{posX},{posY},{posZ},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
             }
 
             // Reset the timer
@@ -86,7 +90,6 @@ public class SocketClient2 : MonoBehaviour
 
                 // Debug log the parsed parts
                 Debug.Log(message);
-                //Debug.Log("Parsed parts: " + string.Join(", ", parts));
 
                 // Parse XYZ data for one object
                 if (parts.Length == 7)
