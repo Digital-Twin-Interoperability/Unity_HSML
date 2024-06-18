@@ -7,7 +7,8 @@ using System.Text;
 public class SocketClient2 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "10.97.144.74";
+    //private const string serverIP = "10.97.144.74";
+    private const string serverIP = "192.168.137.1";
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data

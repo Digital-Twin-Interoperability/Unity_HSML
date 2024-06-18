@@ -3,14 +3,14 @@ from pxr import Gf, UsdGeom, Usd
 import time
 import socket
 import omni.usd
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 def parse_message(message):
-    # Split the message by comma and discard the first value (title)
     data = message.split(',')
     print("Parsed data:", data)
     if len(data) != 8:
         raise ValueError(f"Expected 8 values in the message, but got {len(data)}")
-    # Convert the remaining values to floats
     x, y, z = float(data[1]), float(data[2]), float(data[3])
     rx, ry, rz, w = float(data[4]), float(data[5]), float(data[6]), float(data[7])
     return Gf.Vec3d(x, y, z), Gf.Quatf(w, rx, ry, rz)
@@ -21,10 +21,37 @@ def recorder():
     print(f"Connection from {address} has been established!")
     clientsocket.send(bytes(f"{finalTransform1, finalRotation1}", "utf-8"))
 
-    message = clientsocket.recv(1024)  # Buffer size is 1024 bytes
+    message = clientsocket.recv(1024)
     message_str = message.decode("utf-8")
     print("Received message from client:", message_str)
     return message_str
+
+def right_to_left_handed(x, y, z, w, rx, ry, rz):
+    # Invert the z-axis for the position
+    x_left = x
+    y_left = y
+    z_left = -z
+
+    # Create a quaternion from the input
+    quat_right = R.from_quat([rx, ry, rz, w])
+
+    # Define a 180 degree rotation around the y-axis to convert right-handed to left-handed
+    rot_conversion = R.from_euler('y', 180, degrees=True)
+
+    # Apply the conversion
+    rot_left = rot_conversion * quat_right
+
+    # Get the new quaternion
+    quat_left = rot_left.as_quat()
+
+    rx_left = quat_left[0]
+    ry_left = quat_left[1]
+    rz_left = quat_left[2]
+    w_left = quat_left[3]
+
+    # Return the left-handed position and quaternion
+    return x_left, y_left, z_left, w_left, rx_left, ry_left, rz_left
+
 
 class OmniControls(BehaviorScript):
     def on_init(self):
@@ -42,11 +69,10 @@ class OmniControls(BehaviorScript):
 
     def on_play(self):
         global start_t, clientsocket, address
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((socket.gethostname(), 1234))
-        s.listen(5)
-        clientsocket, address = s.accept()
+        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # s.bind((socket.gethostname(), 1234))
+        # s.listen(5)
+        # clientsocket, address = s.accept()
 
         print("CONTROLS TEST PLAY")
         self.Flask = False
@@ -66,38 +92,39 @@ class OmniControls(BehaviorScript):
         translate: Gf.Vec3d = matrix.ExtractTranslation()
         rotationBot1: Gf.Rotation = matrix.ExtractRotation()
 
-        # Convert translation to left-handed coordinate system
-        translate[0] = -translate[0]
-        translate[1] = -translate[1]
-
-        # Convert rotation to left-handed coordinate system
-        quat = rotationBot1.GetQuat()
-        quat = Gf.Quatd(quat.GetReal(), -quat.GetImaginary()[0], -quat.GetImaginary()[1], -quat.GetImaginary()[2])
-        rotationBot1 = Gf.Rotation(quat)
-
         matrix3: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim3)
         translate3: Gf.Vec3d = matrix3.ExtractTranslation()
         rotationBot3: Gf.Rotation = matrix3.ExtractRotation()
 
-        finalTransform1 = str(translate)
-        finalRotation1 = str(rotationBot1)
+        finalTransform1 = [translate[0], translate[1], translate[2]]
+        finalRotation1 = [rotationBot1.GetAxis()[0], rotationBot1.GetAxis()[1], rotationBot1.GetAxis()[2], rotationBot1.GetAngle()]
 
-        finalTransform3 = str(translate3)
-        finalRotation3 = str(rotationBot3)
+        finalTransform3 = [translate3[0], translate3[1], translate3[2]]
+        finalRotation3 = [rotationBot3.GetAxis()[0], rotationBot3.GetAxis()[1], rotationBot3.GetAxis()[2], rotationBot3.GetAngle()]
 
+        x_left, y_left, z_left, w_left, rx_left, ry_left, rz_left = right_to_left_handed(
+            finalTransform1[0], finalTransform1[1], finalTransform1[2], 
+            finalRotation1[3], finalRotation1[0], finalRotation1[1], finalRotation1[2]
+        )
+
+        #print("Left-handed coordinates:", x_left, y_left, z_left)
+        #print(translate)
+
+
+        print("Left-handed rotation:",rx_left, ry_left, rz_left, w_left)
+        print(rotationBot1)
+'''
         print("World Position 1:", finalTransform1)
         print("World Rotation 1:", finalRotation1)
 
-        print("World Position 1:", finalTransform3)
-        print("World Rotation 1:", finalRotation3)
+        print("World Position 3:", finalTransform3)
+        print("World Rotation 3:", finalRotation3)
 
         message_str = recorder()
 
         try:
-            # Parse the message to get position and rotation
             position, rotation = parse_message(message_str)
 
-            # Apply the translation and rotation to prim2
             xform = UsdGeom.Xformable(prim2)
             transform_ops = xform.GetOrderedXformOps()
 
@@ -114,3 +141,4 @@ class OmniControls(BehaviorScript):
             print(f"Error parsing message: {e}")
         except Exception as e:
             print(f"Unexpected error: {e}")
+'''
