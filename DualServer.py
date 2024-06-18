@@ -19,7 +19,7 @@ def recorder():
     global finalTransform1, finalRotation1, finalTransform3, finalRotation3, clientsocket
 
     print(f"Connection from {address} has been established!")
-    clientsocket.send(bytes(f"{finalTransform1, finalRotation1}", "utf-8"))
+    clientsocket.send(bytes(f"{finalTransform1, finalRotation1, finalTransform3, finalRotation3}", "utf-8"))
 
     message = clientsocket.recv(1024)
     message_str = message.decode("utf-8")
@@ -69,10 +69,10 @@ class OmniControls(BehaviorScript):
 
     def on_play(self):
         global start_t, clientsocket, address
-        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # s.bind((socket.gethostname(), 1234))
-        # s.listen(5)
-        # clientsocket, address = s.accept()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), 1234))
+        s.listen(5)
+        clientsocket, address = s.accept()
 
         print("CONTROLS TEST PLAY")
         self.Flask = False
@@ -96,24 +96,14 @@ class OmniControls(BehaviorScript):
         translate3: Gf.Vec3d = matrix3.ExtractTranslation()
         rotationBot3: Gf.Rotation = matrix3.ExtractRotation()
 
-        finalTransform1 = [translate[0], translate[1], translate[2]]
-        finalRotation1 = [rotationBot1.GetAxis()[0], rotationBot1.GetAxis()[1], rotationBot1.GetAxis()[2], rotationBot1.GetAngle()]
+        finalTransform1 = str(translate)
+        finalRotation1 = str(rotationBot1)
 
-        finalTransform3 = [translate3[0], translate3[1], translate3[2]]
-        finalRotation3 = [rotationBot3.GetAxis()[0], rotationBot3.GetAxis()[1], rotationBot3.GetAxis()[2], rotationBot3.GetAngle()]
-
-        x_left, y_left, z_left, w_left, rx_left, ry_left, rz_left = right_to_left_handed(
-            finalTransform1[0], finalTransform1[1], finalTransform1[2], 
-            finalRotation1[3], finalRotation1[0], finalRotation1[1], finalRotation1[2]
-        )
-
-        #print("Left-handed coordinates:", x_left, y_left, z_left)
-        #print(translate)
+        finalTransform3 = str(translate3)
+        finalRotation3 = str(rotationBot3)
 
 
-        print("Left-handed rotation:",rx_left, ry_left, rz_left, w_left)
-        print(rotationBot1)
-'''
+
         print("World Position 1:", finalTransform1)
         print("World Rotation 1:", finalRotation1)
 
@@ -141,4 +131,4 @@ class OmniControls(BehaviorScript):
             print(f"Error parsing message: {e}")
         except Exception as e:
             print(f"Unexpected error: {e}")
-'''
+
