@@ -7,7 +7,7 @@ using System.Text;
 public class SocketClient2 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "10.97.144.74";
+    private const string serverIP = "10.97.145.30";
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data
@@ -65,9 +65,9 @@ public class SocketClient2 : MonoBehaviour
                 // Multiply each value of XYZ by 100 before sending
                 float posX = position.x * 100;
                 float posY = position.y * 100;
-                float posZ = position.z * -100;
+                float posZ = position.z * 100;
 
-                SendMessageToServer($"Rover1,{posX},{posY},{posZ},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
+                SendMessageToServer($"Rover1,{-posX},{posY},{posZ},{rotation.x},{rotation.y},{rotation.z},{rotation.w}");
             }
 
             // Reset the timer
@@ -125,7 +125,7 @@ public class SocketClient2 : MonoBehaviour
                         z1 /= 100.0f;
 
                         // Update the new position and rotation for the first object
-                        newPosition1 = new Vector3(x1, y1, -z1);
+                        newPosition1 = new Vector3(-x1, y1, z1);
 
                         // newRotation1 = new Quaternion(rx1, ry1, rz1, w1);
                         Vector3 axis1 = new Vector3(rx1, ry1, rz1).normalized;
@@ -152,7 +152,7 @@ public class SocketClient2 : MonoBehaviour
                         z2 /= 100.0f;
 
                         // Update the new position and rotation for the first object
-                        newPosition3 = new Vector3(x2, y2, -z2);
+                        newPosition3 = new Vector3(-x2, y2, z2);
 
                         // newRotation1 = new Quaternion(rx1, ry1, rz1, w1);
                         Vector3 axis3 = new Vector3(rx2, ry2, rz2).normalized;
