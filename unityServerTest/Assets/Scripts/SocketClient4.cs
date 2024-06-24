@@ -36,8 +36,8 @@ public class SocketClient4 : MonoBehaviour
             // Send the position and rotation of targetObject1
             if (targetObject1 != null)
             {
-                Vector3 position = AdjustPositionAxis(targetObject1.transform.position);
-                Quaternion rotation = AdjustRotationAxis(targetObject1.transform.rotation);
+                Vector3 position = TransformPositionAxis(targetObject1.transform.position);
+                Quaternion rotation = TransformRotationAxis(targetObject1.transform.rotation);
 
                 // Multiply each value of XYZ by 100 before sending
                 float posX = position.x * 1;
@@ -113,19 +113,19 @@ public class SocketClient4 : MonoBehaviour
         }
     }
 
-    private Vector3 AdjustPositionAxis(Vector3 position)
+    private Vector3 TransformPositionAxis(Vector3 position)
     {
         return new Vector3(position.x, position.z, position.y);
     }
 
-    private Quaternion AdjustRotationAxis(Quaternion rotation)
+    private Quaternion TransformRotationAxis(Quaternion rotation)
     {
-        var originalRotQuat = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
-        var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
-        var rotationYQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
-        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
-        worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
-        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+        var startingRotationalQ = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+        var rotationXQuaternion = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
+        var rotationYQuaternion = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
+        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuaternion, rotationXQuaternion);
+        worldRotation = System.Numerics.Quaternion.Multiply(startingRotationalQ, worldRotation);
+        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuaternion, worldRotation);
         return new Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
     }
 }
