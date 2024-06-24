@@ -88,6 +88,7 @@ public class SocketClient2 : MonoBehaviour
         }
     }
 
+
     private void ReceiveCallback(IAsyncResult AR)
     {
         try

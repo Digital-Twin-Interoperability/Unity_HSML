@@ -120,7 +120,7 @@ public class SocketClient3 : MonoBehaviour
 
     private Vector3 AdjustPositionAxis(Vector3 position)
     {
-        return new Vector3(position.x, -position.y, position.z);
+        return new Vector3(position.x, position.z, position.y);
     }
 
     private Quaternion AdjustRotationAxis(Quaternion rotation)
