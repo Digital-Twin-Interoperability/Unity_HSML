@@ -7,14 +7,14 @@ using System.Text;
 public class SocketClient4 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "192.168.137.1";
+    private const string serverIP = "10.97.145.136";
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data
 
-    public GameObject targetObject1;
-    private Vector3 newPosition1;
-    private Quaternion newRotation1;
+    public GameObject targetObject1, targetObject2, targetObject3;
+    private Vector3 newPosition1, newPosition2, newPosition3;
+    private Quaternion newRotation1, newRotation2, newRotation3;
 
     private float messageInterval = 0.07f; // Interval in seconds between messages
     private float timeSinceLastMessage = 0f;
@@ -27,6 +27,18 @@ public class SocketClient4 : MonoBehaviour
 
     void Update()
     {
+
+        if (targetObject2 != null)
+        {
+            targetObject2.transform.position = targetObject2.transform.parent.TransformPoint(newPosition2);
+            targetObject2.transform.rotation = targetObject2.transform.parent.rotation * newRotation2;
+        }
+
+        if (targetObject3 != null)
+        {
+            targetObject3.transform.position = targetObject3.transform.parent.TransformPoint(newPosition3);
+            targetObject3.transform.rotation = targetObject3.transform.parent.rotation * newRotation3;
+        }
         // Increment the time since the last message
         timeSinceLastMessage += Time.deltaTime;
 
@@ -69,6 +81,68 @@ public class SocketClient4 : MonoBehaviour
 
                 // Debug log the parsed parts
                 Debug.Log(message);
+
+                // Parse XYZ data for one object
+                if (parts.Length == 14)
+                {
+                    // Parse first object's position and rotation
+                    float x1, y1, z1, rx1, ry1, rz1, w1;
+                    if (float.TryParse(parts[0], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x1) &&
+                        float.TryParse(parts[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y1) &&
+                        float.TryParse(parts[2], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z1) &&
+                        float.TryParse(parts[3], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx1) &&
+                        float.TryParse(parts[4], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry1) &&
+                        float.TryParse(parts[5], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz1) &&
+                        float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1))
+                    {
+                        // Convert from cm to meters
+                        x1 *= 100.0f;
+                        y1 *= 100.0f;
+                        z1 *= 100.0f;
+
+                        // Update the new position and rotation for the first object
+                        newPosition2 = new Vector3(x1, z1, y1);
+
+                        // newRotation1 = new Quaternion(rx1, ry1, rz1, w1);
+                        Vector3 axis1 = new Vector3(rx1, ry1, rz1).normalized;
+                        newRotation2 = Quaternion.AngleAxis(w1, axis1);
+                    }
+
+                    else
+                    {
+                        Debug.LogError("Failed to parse first object's XYZW and quaternion data as float values!");
+                    }
+                    // Parse first object's position and rotation
+                    float x2, y2, z2, rx2, ry2, rz2, w2;
+                    if (float.TryParse(parts[7], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out x2) &&
+                        float.TryParse(parts[8], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out y2) &&
+                        float.TryParse(parts[9], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out z2) &&
+                        float.TryParse(parts[10], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rx2) &&
+                        float.TryParse(parts[11], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out ry2) &&
+                        float.TryParse(parts[12], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rz2) &&
+                        float.TryParse(parts[13], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w2))
+                    {
+                        // Convert from cm to meters
+                        x2 *= 1.0f;
+                        y2 *= 1.0f;
+                        z2 *= 1.0f;
+
+                        // Update the new position and rotation for the first object
+                        newPosition3 = new Vector3(x2, y2, z2);
+
+                        // newRotation1 = new Quaternion(rx1, ry1, rz1, w1);
+                        Vector3 axis3 = new Vector3(rx2, ry2, rz2).normalized;
+                        newRotation3 = Quaternion.AngleAxis(w2, axis3);
+                    }
+                    else
+                    {
+                        Debug.LogError("Failed to parse first object's XYZW and quaternion data as float values!");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Received message does not contain valid data for the object!");
+                }
             }
             clientSocket.BeginReceive(receiveBuffer, 0, receiveBuffer.Length, SocketFlags.None, ReceiveCallback, null);
         }

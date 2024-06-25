@@ -16,9 +16,9 @@ def parse_message(message):
     return Gf.Vec3d(x, y, z), Gf.Quatf(w, rx, ry, rz)
 
 def recorder():
-    global finalTransform1, finalRotation1, clientsocket
+    global finalTransform1, finalRotation1, finalTransform3, finalRotation3, clientsocket
     print(f"Connection from {address} has been established!")
-    clientsocket.send(bytes("Hello", "utf-8"))
+    clientsocket.send(bytes(f"{finalTransform1, finalRotation1, finalTransform3, finalRotation3}", "utf-8"))
 
     message = clientsocket.recv(1024)
     message_str = message.decode("utf-8")
@@ -33,7 +33,9 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST INIT")
 
         stage = omni.usd.get_context().get_stage()
-        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter__1"))
+        prim = stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter__1/Anorthosite_Rock__1_meter__1")
+        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Chassis"))
+        prim3 = stage.GetPrimAtPath("/World/_WD_Contrl/CADRE_4WD_Controllable/NewCADRE/CADRE_Textured_1/CADRE_Chasis_1/CADRE_Chasis/Body1/Body1")
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
@@ -57,7 +59,29 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST END")
 
     def on_update(self, current_time: float, delta_time: float):
-        global finalTransform1, finalRotation1
+        global finalTransform1, finalRotation1, finalTransform3, finalRotation3
+
+        matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
+        translate: Gf.Vec3d = matrix.ExtractTranslation()
+        rotationBot1: Gf.Rotation = matrix.ExtractRotation()
+
+        matrix3: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim3)
+        translate3: Gf.Vec3d = matrix3.ExtractTranslation()
+        rotationBot3: Gf.Rotation = matrix3.ExtractRotation()
+
+        finalTransform1 = str(translate)
+        finalRotation1 = str(rotationBot1)
+
+        finalTransform3 = str(translate3)
+        finalRotation3 = str(rotationBot3)
+
+
+
+        print("World Position 1:", finalTransform1)
+        print("World Rotation 1:", finalRotation1)
+
+        print("World Position 3:", finalTransform3)
+        print("World Rotation 3:", finalRotation3)
 
         message_str = recorder()
 
