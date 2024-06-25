@@ -33,17 +33,17 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST INIT")
 
         stage = omni.usd.get_context().get_stage()
-        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Chandrayaan_3_Lander"))
+        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter__1"))
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
 
     def on_play(self):
         global start_t, clientsocket, address
-        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #s.bind((socket.gethostname(), 1234))
-        #s.listen(5)
-        #clientsocket, address = s.accept()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((socket.gethostname(), 1234))
+        s.listen(5)
+        clientsocket, address = s.accept()
 
         print("CONTROLS TEST PLAY")
         self.Flask = False
@@ -59,7 +59,7 @@ class OmniControls(BehaviorScript):
     def on_update(self, current_time: float, delta_time: float):
         global finalTransform1, finalRotation1
 
-        '''message_str = recorder()
+        message_str = recorder()
 
         try:
             position, rotation = parse_message(message_str)
@@ -79,6 +79,6 @@ class OmniControls(BehaviorScript):
         except ValueError as e:
             print(f"Error parsing message: {e}")
         except Exception as e:
-            print(f"Unexpected error: {e}")'''
+            print(f"Unexpected error: {e}")
 
 
