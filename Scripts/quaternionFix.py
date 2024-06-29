@@ -5,6 +5,7 @@ import socket
 import omni.usd
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+import re
 
 def parse_message(message):
     data = message.split(',')
@@ -16,36 +17,66 @@ def parse_message(message):
     return Gf.Vec3d(x, y, z), Gf.Quatf(w, rx, ry, rz)
 
 def recorder():
-    global finalTransform1, finalRotation1, finalTransform3, finalRotation3, clientsocket
+    global cleaned_transform2, cleaned_transform3, cleaned_transform4, cleaned_transform5, clientsocket
     print(f"Connection from {address} has been established!")
-    clientsocket.send(bytes(f"{finalTransform1, finalRotation1, finalTransform3, finalRotation3}", "utf-8"))
+    #clientsocket.send(bytes(f"{cleaned_transform2,cleaned_transform3, cleaned_transform4, cleaned_transform5}", "utf-8"))
+    # Prepare data for JSON serialization
+    transform_data = {
+        "transform2": cleaned_transform2,
+        "transform3": cleaned_transform3,
+        "transform4": cleaned_transform4,
+        "transform5": cleaned_transform5
+    }
+    
+    # Serialize to JSON and send
+    json_data = json.dumps(transform_data)
+    clientsocket.send(bytes(json_data, "utf-8"))
 
     message = clientsocket.recv(1024)
     message_str = message.decode("utf-8")
     print("Received message from client:", message_str)
     return message_str
 
- 
+def get_transform(prim):
+    matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
+    translate: Gf.Vec3d = matrix.ExtractTranslation()
+    rotationBot: Gf.Rotation = matrix.ExtractRotation()
+    return (translate, rotationBot)
+
+def clean_transform(transform):
+    # Convert the transform (tuple) to a string
+    transform_str = str(transform)
+    # Remove specific phrases
+    transform_str = transform_str.replace("Gf.Vec3d", "").replace("Gf.Rotation", "").replace("))", ")")
+    # Use regex to remove anything that isn't a number, comma, or period
+    cleaned_str = re.sub(r'[^\d.,-]', '', transform_str)
+    return cleaned_str
+
 class OmniControls(BehaviorScript):
     def on_init(self):
-        global prim, prim2, prim3
+        global prim1, prim2, prim3, prim4, prim5
         timeline_stream = self.timeline.get_timeline_event_stream()
         print("CONTROLS TEST INIT")
 
         stage = omni.usd.get_context().get_stage()
-        prim = stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter__1/Anorthosite_Rock__1_meter__1")
-        prim2 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Chassis"))
-        prim3 = stage.GetPrimAtPath("/World/_WD_Contrl/CADRE_4WD_Controllable/NewCADRE/CADRE_Textured_1/CADRE_Chasis_1/CADRE_Chasis/Body1/Body1")
+        #Viper
+        prim1 = UsdGeom.Xform(stage.GetPrimAtPath("/World/Chassis"))
+        #Cadre
+        prim2 = stage.GetPrimAtPath("/World/_WD_Contrl/CADRE_4WD_Controllable/NewCADRE/CADRE_Textured_1/CADRE_Chasis_1/CADRE_Chasis/Body1/Body1")
+        #Rocks
+        prim3 = stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter__1/Anorthosite_Rock__1_meter__1")
+        prim4 = stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter_001_1/Anorthosite_Rock__1_meter_001_1")
+        prim5 = stage.GetPrimAtPath("/World/Rocks/World/Anorthosite_Rock__1_meter_002_1/Anorthosite_Rock__1_meter_002_1")
 
     def on_destroy(self):
         print(f"{__class__.__name__}.on_destroy()->{self.prim_path}")
 
     def on_play(self):
-        global start_t, clientsocket, address
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((socket.gethostname(), 1234))
-        s.listen(5)
-        clientsocket, address = s.accept()
+        #global start_t, clientsocket, address
+        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #s.bind((socket.gethostname(), 1234))
+        #s.listen(5)
+        #clientsocket, address = s.accept()
 
         print("CONTROLS TEST PLAY")
         self.Flask = False
@@ -59,36 +90,24 @@ class OmniControls(BehaviorScript):
         print("CONTROLS TEST END")
 
     def on_update(self, current_time: float, delta_time: float):
-        global finalTransform1, finalRotation1, finalTransform3, finalRotation3
+        global transform2, transform3, transform4, transform5
 
-        matrix: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim)
-        translate: Gf.Vec3d = matrix.ExtractTranslation()
-        rotationBot1: Gf.Rotation = matrix.ExtractRotation()
+        cleaned_transform2 = clean_transform(get_transform(prim2))
+        cleaned_transform3 = clean_transform(get_transform(prim3))
+        cleaned_transform4 = clean_transform(get_transform(prim4))
+        cleaned_transform5 = clean_transform(get_transform(prim5))
+        
+        print("World Position Cadre:", cleaned_transform2)
+        print("World Position Rock1:", cleaned_transform3)
+        print("World Position Rock2:", cleaned_transform4)
+        print("World Position Rock3:", cleaned_transform5)
 
-        matrix3: Gf.Matrix4d = omni.usd.get_world_transform_matrix(prim3)
-        translate3: Gf.Vec3d = matrix3.ExtractTranslation()
-        rotationBot3: Gf.Rotation = matrix3.ExtractRotation()
-
-        finalTransform1 = str(translate)
-        finalRotation1 = str(rotationBot1)
-
-        finalTransform3 = str(translate3)
-        finalRotation3 = str(rotationBot3)
-
-
-
-        print("World Position 1:", finalTransform1)
-        print("World Rotation 1:", finalRotation1)
-
-        print("World Position 3:", finalTransform3)
-        print("World Rotation 3:", finalRotation3)
-
-        message_str = recorder()
+        #message_str = recorder()
 
         try:
             position, rotation = parse_message(message_str)
 
-            xform = UsdGeom.Xformable(prim2)
+            xform = UsdGeom.Xformable(prim1)
             transform_ops = xform.GetOrderedXformOps()
 
             if not transform_ops:
