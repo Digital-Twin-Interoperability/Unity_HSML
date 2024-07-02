@@ -1,0 +1,19 @@
+mdl 1.8;
+
+import ::state::normal;
+import ::Z6Ahttp_3A_2F::Z59omniverse_2Dcontent_2Dproduction_2Es3_2Eus_2Dwest_2D2_2Eamazonaws_2Ecom::Materials::vMaterials_2::Concrete::Concrete_Rough::Concrete_Rough_Dirty;
+
+export material Regolith_Surface(*)
+ = Z6Ahttp_3A_2F::Z59omniverse_2Dcontent_2Dproduction_2Es3_2Eus_2Dwest_2D2_2Eamazonaws_2Ecom::Materials::vMaterials_2::Concrete::Concrete_Rough::Concrete_Rough_Dirty(
+    infinite_tiling: true,
+    diffuse_brightness: 0.299999982f,
+    roughness: 1.f,
+    reflectivity: 1.f,
+    moss_growth: 0.f,
+    bump_strength: 1.f,
+    dirt: 0.319999993f,
+    dirt_color: color(9.99999997e-07f, 9.99998406e-07f, 9.99989993e-07f),
+    texture_translate: float2(0.f),
+    texture_rotate: 0.f,
+    texture_scale: float2(0.00999999978f),
+    uv_space_index: 0);
