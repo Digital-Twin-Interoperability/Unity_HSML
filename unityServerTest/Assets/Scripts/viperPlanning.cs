@@ -5,6 +5,10 @@ public class viperPlanning : MonoBehaviour
 {
     public float m_Speed = 1f;                 // How fast the tank moves forward and back.
     public float m_TurnSpeed = 100f;            // How fast the tank turns in degrees per second.
+    public GameObject[] leftWheels;             // Array for the left wheels
+    public GameObject[] rightWheels;            // Array for the right wheels
+    public float wheelTurnSpeed = 500f;         // Speed of the wheel rotation
+    public float wheelTurnSpeed2 = 10f;
 
     private Rigidbody m_Rigidbody;              // Reference used to move the tank.
 
@@ -41,14 +45,14 @@ public class viperPlanning : MonoBehaviour
     {
         while (true)
         {
-            // Move forward for 5 seconds
-            yield return MoveForward(10f);
+            // Move forward for 15 seconds
+            yield return MoveForward(15f);
 
             // Turn right (90 degrees)
-            yield return Turn(90f);
+            yield return Turn(-90f);
 
-            // Move forward for another 5 seconds
-            yield return MoveForward(10f);
+            // Move forward for another 100 seconds
+            yield return MoveForward(100f);
 
             // Add more steps as needed
         }
@@ -63,6 +67,8 @@ public class viperPlanning : MonoBehaviour
             Vector3 movement = transform.forward * m_Speed * Time.deltaTime;
             m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
 
+            RotateWheelsForward(m_Speed);
+
             timer += Time.deltaTime;
             yield return null;
         }
@@ -76,11 +82,43 @@ public class viperPlanning : MonoBehaviour
         while (Mathf.Abs(m_Rigidbody.rotation.eulerAngles.y - targetAngle) > 0.1f)
         {
             float turn = m_TurnSpeed * Time.deltaTime;
-            Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
+            Quaternion turnRotation = Quaternion.Euler(0f, -turn, 0f);
             m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
+
+            RotateWheelsForTurn(m_TurnSpeed);
 
             timer += Time.deltaTime;
             yield return null;
+        }
+    }
+
+    private void RotateWheelsForward(float speed)
+    {
+        float rotation = speed * wheelTurnSpeed * Time.deltaTime;
+
+        foreach (var wheel in leftWheels)
+        {
+            wheel.transform.Rotate(rotation, 0f, 0f);
+        }
+
+        foreach (var wheel in rightWheels)
+        {
+            wheel.transform.Rotate(rotation, 0f, 0f);
+        }
+    }
+
+    private void RotateWheelsForTurn(float turnSpeed)
+    {
+        float rotation = turnSpeed * wheelTurnSpeed2 * Time.deltaTime;
+
+        foreach (var wheel in leftWheels)
+        {
+            wheel.transform.Rotate(-rotation, 0f, 0f);
+        }
+
+        foreach (var wheel in rightWheels)
+        {
+            wheel.transform.Rotate(rotation, 0f, 0f);
         }
     }
 }
