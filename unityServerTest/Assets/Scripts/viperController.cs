@@ -2,7 +2,7 @@
 
 namespace Complete
 {
-    public class TankMovement : MonoBehaviour
+    public class viperController : MonoBehaviour
     {
         public float m_Speed = 12f;                 // How fast the tank moves forward and back.
         public float m_TurnSpeed = 180f;            // How fast the tank turns in degrees per second.

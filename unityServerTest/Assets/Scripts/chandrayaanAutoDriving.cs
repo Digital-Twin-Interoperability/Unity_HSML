@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class viperPlanning : MonoBehaviour
+public class chandrayaanAutoDriving : MonoBehaviour
 {
     public float m_Speed = 1f;                 // How fast the tank moves forward and back.
     public float m_TurnSpeed = 100f;            // How fast the tank turns in degrees per second.
