@@ -7,12 +7,13 @@ using System.Text;
 public class SocketClient5 : MonoBehaviour
 {
     private const int port = 1234;
-    private const string serverIP = "10.97.145.136";
+    private const string serverIP = "192.168.137.1";
 
     private Socket clientSocket;
     private byte[] receiveBuffer = new byte[2048]; // Increased buffer size to handle larger data
 
     public GameObject targetObject1, targetObject2, targetObject3;
+    public GameObject targetObject4, targetObject5, targetObject6;
     private Vector3 newPosition1, newPosition2, newPosition3;
     private Quaternion newRotation1, newRotation2, newRotation3;
 
@@ -30,8 +31,8 @@ public class SocketClient5 : MonoBehaviour
 
         if (targetObject2 != null)
         {
-            targetObject2.transform.position = targetObject2.transform.parent.TransformPoint(newPosition2);
-            targetObject2.transform.rotation = targetObject2.transform.parent.rotation * newRotation2;
+            targetObject2.transform.position = targetObject2.transform.parent.TransformPoint(AdjustPositionAxis(newPosition2));
+            targetObject2.transform.rotation = targetObject2.transform.parent.rotation * AdjustRotationAxis(newRotation2);
         }
 
         if (targetObject3 != null)
@@ -76,8 +77,8 @@ public class SocketClient5 : MonoBehaviour
                 string message = Encoding.UTF8.GetString(data);
 
                 // Remove {, }, (, ), [, ] from the message and split by spaces
-                message = message.Replace("{", "").Replace("}", "").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("\'", "").Replace(",", "");
-                string[] parts = message.Split(' ');
+                message = message.Replace("{", "").Replace("}", "").Replace("(", "").Replace(")", "").Replace("[", "").Replace("]", "").Replace("\'", "");
+                string[] parts = message.Split(',');
 
                 // Debug log the parsed parts
                 Debug.Log(message);
@@ -96,12 +97,12 @@ public class SocketClient5 : MonoBehaviour
                         float.TryParse(parts[6], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out w1))
                     {
                         // Convert from cm to meters
-                        x1 *= 100.0f;
-                        y1 *= 100.0f;
-                        z1 *= 100.0f;
+                        x1 *= 10.0f;
+                        y1 *= 10.0f;
+                        z1 *= 10.0f;
 
                         // Update the new position and rotation for the first object
-                        newPosition2 = new Vector3(x1, z1, y1);
+                        newPosition2 = new Vector3(x1, y1, z1);
 
                         // newRotation1 = new Quaternion(rx1, ry1, rz1, w1);
                         Vector3 axis1 = new Vector3(rx1, ry1, rz1).normalized;
@@ -193,6 +194,17 @@ public class SocketClient5 : MonoBehaviour
     }
 
     private Quaternion AdjustRotationAxis(Quaternion rotation)
+    {
+        var originalRotQuat = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+        var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
+        var rotationYQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
+        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
+        worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
+        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+        return new Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
+    }
+
+    private Quaternion AdjustRotationAxisOmni(Quaternion rotation)
     {
         var originalRotQuat = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
         var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
