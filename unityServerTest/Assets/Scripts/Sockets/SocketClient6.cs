@@ -3,7 +3,6 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;  // Ensure Newtonsoft.Json is included in your Unity project
 
 public class SocketClient6 : MonoBehaviour
@@ -28,7 +27,6 @@ public class SocketClient6 : MonoBehaviour
 
     void Update()
     {
-
         // Increment the time since the last message
         timeSinceLastMessage += Time.deltaTime;
 
@@ -38,8 +36,10 @@ public class SocketClient6 : MonoBehaviour
             // Create a JSON string to hold all objects' data
             string jsonMessage = "{";
             jsonMessage += GetObjectDataAsJson(targetObject1, "Viper") + ",";
-            jsonMessage += GetObjectDataAsJson(targetObject3, "ChandLander") + ",";
-            jsonMessage += GetObjectDataAsJson(targetObject4, "ChandRover");
+            // Add rotation data for leftWheel
+            jsonMessage += GetRotationDataAsJson(leftWheel, "LeftWheel") + ",";
+            // Add rotation data for rightWheel
+            jsonMessage += GetRotationDataAsJson(rightWheel, "RightWheel");
             jsonMessage += "}";
 
             // Send the JSON message to the server
@@ -56,6 +56,7 @@ public class SocketClient6 : MonoBehaviour
         }
     }
 
+
     private string GetObjectDataAsJson(GameObject obj, string objectName)
     {
         if (obj != null)
@@ -71,15 +72,19 @@ public class SocketClient6 : MonoBehaviour
         return $"\"{objectName}\": {{}}";
     }
 
-    private string GetRotationDataAsJson(GameObject obj, string objectName, Quaternion rotation)
+    private string GetRotationDataAsJson(GameObject obj, string objectName)
     {
         if (obj != null)
         {
-            string rotationJson = $"\"rotation\": {{\"x\": {rotation.x}, \"y\": {rotation.y}, \"z\": {rotation.z}, \"w\": {rotation.w}}}";
+            Quaternion rotation = obj.transform.rotation;
+            float yRotation = rotation.eulerAngles.y; // Get the y-axis rotation angle
+
+            string rotationJson = $"\"rotation\": {{\"y\": {yRotation}}}";
             return $"\"{objectName}\": {{ {rotationJson} }}";
         }
         return $"\"{objectName}\": {{}}";
     }
+
 
     private void ConnectToServer()
     {
@@ -163,15 +168,15 @@ public class SocketClient6 : MonoBehaviour
                     float.Parse(parts[1]),
                     float.Parse(parts[2])
                 );
-                Quaternion rotation = new Quaternion(
-                    float.Parse(parts[3]),
-                    float.Parse(parts[4]),
-                    float.Parse(parts[5]),
-                    Mathf.Deg2Rad * float.Parse(parts[6]) // Convert from degrees to radians
-                );
+
+                float[] rotationArray = new float[4];
+                rotationArray[0] = float.Parse(parts[3]);
+                rotationArray[1] = float.Parse(parts[4]);
+                rotationArray[2] = float.Parse(parts[5]);
+                rotationArray[3] = float.Parse(parts[6]); // W component in degrees
 
                 gameObject.transform.position = AdjustPositionAxis(position);
-                gameObject.transform.rotation = AdjustRotationAxis(rotation);
+                gameObject.transform.rotation = AdjustRotationAxisOmni(rotationArray);
             }
         }
     }
@@ -189,6 +194,27 @@ public class SocketClient6 : MonoBehaviour
         var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
         worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
         worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+        return new Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
+    }
+
+    private Quaternion AdjustRotationAxisOmni(float[] rotationArray)
+    {
+        // Convert degrees to radians for the W component
+        float wInRadians = rotationArray[3] * Mathf.Deg2Rad;
+
+        // Create the original quaternion using System.Numerics.Quaternion
+        var originalRotQuat = new System.Numerics.Quaternion(rotationArray[0], rotationArray[1], rotationArray[2], wInRadians);
+
+        // Create the rotation quaternions for X and Y axes
+        var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
+        var rotationYQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
+
+        // Multiply the quaternions to get the world rotation
+        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
+        worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
+        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+
+        // Convert the resulting quaternion back to Unity's Quaternion
         return new Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
     }
 
