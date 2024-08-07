@@ -24,5 +24,37 @@ public class animationStateController : MonoBehaviour
         {
             animator.SetBool("isWalking", false);
         }
+        if (Input.GetKey("h"))
+        {
+            animator.SetBool("isWaving", true);
+        }
+        if (!Input.GetKey("h"))
+        {
+            animator.SetBool("isWaving", false);
+        }
+        if (Input.GetKey("t"))
+        {
+            animator.SetBool("isPointing", true);
+        }
+        if (!Input.GetKey("t"))
+        {
+            animator.SetBool("isPointing", false);
+        }
+        if (Input.GetKey("f"))
+        {
+            animator.SetBool("isCrouching", true);
+        }
+        if (!Input.GetKey("f"))
+        {
+            animator.SetBool("isCrouching", false);
+        }
+        if (Input.GetKey("g"))
+        {
+            animator.SetBool("isNewWave", true);
+        }
+        if (!Input.GetKey("g"))
+        {
+            animator.SetBool("isNewWave", false);
+        }
     }
 }
