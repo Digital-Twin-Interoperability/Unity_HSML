@@ -56,5 +56,13 @@ public class animationStateController : MonoBehaviour
         {
             animator.SetBool("isNewWave", false);
         }
+        if (Input.GetKey("c"))
+        {
+            animator.SetBool("isChecking", true);
+        }
+        if (!Input.GetKey("c"))
+        {
+            animator.SetBool("isChecking", false);
+        }
     }
 }
