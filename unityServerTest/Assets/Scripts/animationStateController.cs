@@ -64,5 +64,13 @@ public class animationStateController : MonoBehaviour
         {
             animator.SetBool("isChecking", false);
         }
+        if (Input.GetKey("b"))
+        {
+            animator.SetBool("isDigging", true);
+        }
+        if (!Input.GetKey("b"))
+        {
+            animator.SetBool("isDigging", false);
+        }
     }
 }

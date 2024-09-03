@@ -64,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             characterController.height = defaultHeight;
-            walkSpeed = 0.1f;
+            walkSpeed = 3f;
             runSpeed = 12f;
         }
 
