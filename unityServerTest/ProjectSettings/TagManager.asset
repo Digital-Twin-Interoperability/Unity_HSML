@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - cam2
+  - cam3
+  - cam4
+  - cam5
+  - cam6
+  - cam1
   layers:
   - Default
   - TransparentFX
