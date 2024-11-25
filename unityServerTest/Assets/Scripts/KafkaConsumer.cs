@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using UnityEngine;
 using Confluent.Kafka;
@@ -6,151 +7,115 @@ using Newtonsoft.Json.Linq;
 
 public class KafkaConsumer : MonoBehaviour
 {
-    private IConsumer<Ignore, string> consumer;
-    private Thread kafkaThread;
+    private IConsumer<string, string> consumer;
+    private string kafkaTopic = "rover-hsml-data";
+    private Vector3 targetPosition;
+    private Thread consumerThread;
     private bool isRunning = true;
 
-    // Public variable to select the GameObject to move
-    public GameObject targetObject;
-
-    // Kafka server details
-    private string bootstrapServers = "192.168.50.133:9092"; // Your Kafka server IP
-    private string topic = "rover-hsml-data"; // The Kafka topic to read from
-
-    // Variables to store the latest received coordinates
-    private Vector3 newPosition;
-    private bool isDataUpdated = false;
-    private SynchronizationContext unityContext;
+    // Thread-safe queue to store received positions
+    private ConcurrentQueue<Vector3> positionQueue = new ConcurrentQueue<Vector3>();
 
     void Start()
     {
-        // Capture the Unity main thread context
-        unityContext = SynchronizationContext.Current;
-
         // Kafka consumer configuration
         var config = new ConsumerConfig
         {
-            BootstrapServers = bootstrapServers,
+            BootstrapServers = "192.168.50.133:9092", // Replace with your Kafka server IP
             GroupId = "unity-consumer-group",
-            AutoOffsetReset = AutoOffsetReset.Earliest // Start reading from the earliest offset if no previous offset is found
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+            EnableAutoCommit = true
         };
 
-        // Create the Kafka consumer
-        consumer = new ConsumerBuilder<Ignore, string>(config).Build();
+        consumer = new ConsumerBuilder<string, string>(config).Build();
+        consumer.Subscribe(kafkaTopic);
 
-        // Start a background thread to consume messages
-        kafkaThread = new Thread(() =>
-        {
-            try
-            {
-                consumer.Subscribe(topic);
-
-                while (isRunning)
-                {
-                    // Poll for new messages from the Kafka topic
-                    var consumeResult = consumer.Consume();
-
-                    if (consumeResult != null)
-                    {
-                        // Handle the received message (parse the JSON and extract xyz data)
-                        ProcessMessage(consumeResult.Message.Value);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error in Kafka consumer: {e.Message}");
-            }
-            finally
-            {
-                consumer.Close();
-            }
-        });
-
-        kafkaThread.Start();
-    }
-
-    // Process the incoming message and extract xyz coordinates
-    void ProcessMessage(string message)
-    {
-        try
-        {
-            // Parse the incoming JSON message
-            JObject json = JObject.Parse(message);
-
-            // Ensure additionalProperty exists and is an array
-            if (json["additionalProperty"] is JArray additionalProperties)
-            {
-                float x = 0f, y = 0f, z = 0f;
-                bool xFound = false, yFound = false, zFound = false;
-
-                // Extract x, y, z values
-                foreach (var prop in additionalProperties)
-                {
-                    if (prop["name"] == null || prop["value"] == null)
-                        continue;
-
-                    string name = (string)prop["name"];
-                    float value = (float)prop["value"];
-
-                    if (name == "xCoordinate")
-                    {
-                        x = value;
-                        xFound = true;
-                    }
-                    else if (name == "yCoordinate")
-                    {
-                        y = value;
-                        yFound = true;
-                    }
-                    else if (name == "zCoordinate")
-                    {
-                        z = value;
-                        zFound = true;
-                    }
-                }
-
-                // Update newPosition only if all coordinates were found
-                if (xFound && yFound && zFound)
-                {
-                    newPosition = new Vector3(x, y, z);
-                    isDataUpdated = true;
-                }
-                else
-                {
-                    Debug.LogWarning("Incomplete position data in message.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("additionalProperty array not found in JSON message.");
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error processing message: {e.Message}");
-        }
+        // Initialize the consumer thread
+        consumerThread = new Thread(ReadKafkaMessages);
+        consumerThread.Start();
     }
 
     void Update()
     {
-        // Only apply the new position if data has been updated
-        if (isDataUpdated && targetObject != null)
+        // Process queued positions in the main thread
+        while (positionQueue.TryDequeue(out Vector3 newPosition))
         {
-            targetObject.transform.position = newPosition;
-            isDataUpdated = false;  // Reset the flag after applying the update
+            targetPosition = newPosition;
+            Debug.Log($"Updated target position to: {targetPosition}");
+        }
+
+        // Smoothly move the GameObject to the target position
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f);
+    }
+
+    private void ReadKafkaMessages()
+    {
+        while (isRunning)
+        {
+            try
+            {
+                // Poll for Kafka messages
+                var consumeResult = consumer.Consume(TimeSpan.FromMilliseconds(100));
+                if (consumeResult != null && !string.IsNullOrEmpty(consumeResult.Value))
+                {
+                    Debug.Log($"Received Kafka message: {consumeResult.Value}");
+
+                    // Parse the JSON message
+                    var message = JObject.Parse(consumeResult.Value);
+
+                    // Extract position data from additionalProperty
+                    float x = ExtractPropertyValue(message, "xCoordinate");
+                    float y = ExtractPropertyValue(message, "yCoordinate");
+                    float z = ExtractPropertyValue(message, "zCoordinate");
+
+                    // Convert from cm to meters
+                    x /= 100.0f;
+                    y /= 100.0f;
+                    z /= 100.0f;
+
+                    // Enqueue the position for the main thread
+                    positionQueue.Enqueue(new Vector3(x, y, z));
+                }
+            }
+            catch (ConsumeException e)
+            {
+                Debug.LogError($"Error consuming Kafka message: {e.Error.Reason}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Unexpected error: {e.Message}");
+            }
         }
     }
 
-    void OnDestroy()
+    private float ExtractPropertyValue(JObject message, string propertyName)
     {
-        // Clean up the Kafka consumer and stop the thread
-        isRunning = false;
-        if (kafkaThread != null && kafkaThread.IsAlive)
+        try
         {
-            kafkaThread.Join();
+            var properties = message["additionalProperty"] as JArray;
+            foreach (var property in properties)
+            {
+                if (property["name"]?.ToString() == propertyName)
+                {
+                    return property["value"]?.ToObject<float>() ?? 0f;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error extracting property '{propertyName}': {e.Message}");
         }
 
+        Debug.LogWarning($"Property '{propertyName}' not found in message.");
+        return 0f;
+    }
+
+    private void OnDestroy()
+    {
+        // Gracefully shut down the consumer and thread
+        isRunning = false;
+        consumerThread?.Join();
         consumer?.Close();
+        consumer?.Dispose();
     }
 }

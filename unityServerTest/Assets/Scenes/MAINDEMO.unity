@@ -774,7 +774,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &338833407
 AudioListener:
   m_ObjectHideFlags: 0
@@ -853,7 +853,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 338833406}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1024d0dcc034c334684810d88543bf17, type: 3}
   m_Name: 
@@ -1063,6 +1063,90 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 462551861}
   m_Mesh: {fileID: -3571458464275337572, guid: 6858cc4fa866c494ab742d96f1adb93e, type: 3}
+--- !u!1 &467784259
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 467784260}
+  - component: {fileID: 467784262}
+  - component: {fileID: 467784261}
+  m_Layer: 0
+  m_Name: Camera (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &467784260
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467784259}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 1.74, z: -3.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 543450653706997988}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &467784261
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467784259}
+  m_Enabled: 1
+--- !u!20 &467784262
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467784259}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &514857588
 GameObject:
   m_ObjectHideFlags: 0
@@ -6332,6 +6416,7 @@ Transform:
   - {fileID: 2058733830}
   - {fileID: 1940527219}
   - {fileID: 1375039180}
+  - {fileID: 467784260}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 97.41, z: 0}
@@ -6958,7 +7043,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 792842321579793842}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de34abf45f52e784bb298f3967c643a3, type: 3}
+  m_Script: {fileID: 11500000, guid: d4efc410be8ebfc4eaf606688b6f99d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!23 &796910691412165593
@@ -7237,6 +7322,8 @@ GameObject:
   - component: {fileID: 919132149181352544}
   - component: {fileID: 919132149181352543}
   - component: {fileID: 919132149181352545}
+  - component: {fileID: 919132149181352546}
+  - component: {fileID: 919132149181352547}
   m_Layer: 0
   m_Name: Astronaut Explorer Low Poly@Idle
   m_TagString: Untagged
@@ -7298,6 +7385,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportRadius: 5
   teleportInterval: 15
+--- !u!114 &919132149181352546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149181352542}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de34abf45f52e784bb298f3967c643a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &919132149181352547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149181352542}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4efc410be8ebfc4eaf606688b6f99d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &919132149550079805
 GameObject:
   m_ObjectHideFlags: 0
@@ -7309,8 +7420,6 @@ GameObject:
   - component: {fileID: 543450653203268999}
   - component: {fileID: 919132149550079806}
   - component: {fileID: 919132149550079807}
-  - component: {fileID: 919132149550079808}
-  - component: {fileID: 919132149550079809}
   m_Layer: 0
   m_Name: JPL_Demo
   m_TagString: Untagged
@@ -7357,31 +7466,6 @@ MonoBehaviour:
   Rock3: {fileID: 1278125846023067199}
   rightWheel: {fileID: 280148183}
   leftWheel: {fileID: 1385421948}
---- !u!114 &919132149550079808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149550079805}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ce40274ab8224745b8208127406af4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &919132149550079809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149550079805}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4efc410be8ebfc4eaf606688b6f99d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roverObject: {fileID: 1278125846023067199}
 --- !u!4 &927237408583892926
 Transform:
   m_ObjectHideFlags: 0

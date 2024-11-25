@@ -10,6 +10,10 @@ public class KafkaHSMLSender : MonoBehaviour
     private IProducer<string, string> producer;
     private string kafkaTopic = "rover-hsml-data";
 
+    // Variables to store the last sent position and rotation
+    private Vector3 lastPosition;
+    private Quaternion lastRotation;
+
     void Start()
     {
         // Kafka producer configuration
@@ -20,14 +24,30 @@ public class KafkaHSMLSender : MonoBehaviour
 
         producer = new ProducerBuilder<string, string>(config).Build();
 
-        // Send full HSML message on start
-        SendFullHSMLMessage();
+        // Initialize last position and rotation
+        lastPosition = transform.position;
+        lastRotation = transform.rotation;
+
+        Debug.Log("Kafka producer initialized.");
     }
 
     void Update()
     {
-        // Continuously update position and rotation (delta updates) in each frame
-        SendDeltaHSMLMessage();
+        // Check for changes in position or rotation
+        if (HasTransformChanged())
+        {
+            SendFullHSMLMessage();
+
+            // Update the last known position and rotation
+            lastPosition = transform.position;
+            lastRotation = transform.rotation;
+        }
+    }
+
+    // Function to check if the transform has changed
+    private bool HasTransformChanged()
+    {
+        return transform.position != lastPosition || transform.rotation != lastRotation;
     }
 
     // Function to generate a unique schema ID based on the GameObject's name and data
@@ -78,7 +98,7 @@ public class KafkaHSMLSender : MonoBehaviour
                         new JObject { { "@type", "PropertyValue" }, { "name", "w" }, { "value", transform.rotation.w } }
                     }
                 },
-                { "description", "Initial game object data with full schema" }
+                { "description", "Continuous game object data with full schema" }
             };
 
             string message = hsmlMessage.ToString();
@@ -88,38 +108,6 @@ public class KafkaHSMLSender : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Error sending full HSML message: {e.Message}");
-        }
-    }
-
-    // Function to send delta HSML message (only changed fields)
-    void SendDeltaHSMLMessage()
-    {
-        try
-        {
-            string schemaId = GenerateUniqueSchemaId(); // Use the unique schema ID
-            JObject deltaMessage = new JObject
-            {
-                { "rover", gameObject.name },
-                { "delta", new JObject
-                    {
-                        { "xCoordinate", transform.position.x },
-                        { "yCoordinate", transform.position.y },
-                        { "zCoordinate", transform.position.z },
-                        { "rx", transform.rotation.x },
-                        { "ry", transform.rotation.y },
-                        { "rz", transform.rotation.z },
-                        { "w", transform.rotation.w }
-                    }
-                }
-            };
-
-            string message = deltaMessage.ToString();
-            producer.Produce(kafkaTopic, new Message<string, string> { Key = schemaId, Value = message });
-            Debug.Log($"Sent delta HSML message: {message}");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error sending delta HSML message: {e.Message}");
         }
     }
 
