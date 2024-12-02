@@ -1,0 +1,60 @@
+{
+	"@context": "https://schema.org",
+	"@type": "3DModel",
+	"name": "unrealActor",
+	"identifier":
+	{
+		"@type": "PropertyValue",
+		"propertyID": "schema_id",
+		"value": "unrealActor-001"
+	},
+	"url": "objectLink",
+	"creator":
+	{
+		"@type": "Person",
+		"name": "Jared Carrillo"
+	},
+	"dateCreated": "11-12-23",
+	"dateModified": "11-22-24",
+	"encodingFormat": "application/x-obj",
+	"contentUrl": "https://example.com/models/3dmodel-001.obj",
+	"additionalType": "https://schema.org/CreativeWork",
+	"additionalProperty": [
+		{
+			"@type": "PropertyValue",
+			"name": "xCoordinate",
+			"value": 1123.0240446072789
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "yCoordinate",
+			"value": -546.59693065593433
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "zCoordinate",
+			"value": 16.012852224930874
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "rx",
+			"value": -0
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "ry",
+			"value": 0
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "rz",
+			"value": -0.97613532309447293
+		},
+		{
+			"@type": "PropertyValue",
+			"name": "w",
+			"value": 0.21716314375890108
+		}
+	],
+	"description": "Unreal engine object"
+}
