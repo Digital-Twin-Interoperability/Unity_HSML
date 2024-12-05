@@ -4,7 +4,7 @@
     "name": "Unity_Viper_Frame",
     "identifier": {
         "@type": "PropertyValue",
-        "propertyID": "618310748CBBBF85A2CA1E49C78DEF24",
+        "propertyID": "26FD623831FCA659C26612793BF870FC",
         "value": "Unity_Viper_Frame-001"
     },
     "url": "https://example.com/models/Unity_Viper_Frame-001",
@@ -21,37 +21,37 @@
         {
             "@type": "PropertyValue",
             "name": "xCoordinate",
-            "value": -4.49597073
+            "value": -7.079345
         },
         {
             "@type": "PropertyValue",
             "name": "yCoordinate",
-            "value": -0.426965237
+            "value": -1.03300476
         },
         {
             "@type": "PropertyValue",
             "name": "zCoordinate",
-            "value": -6.135555
+            "value": -8.85412
         },
         {
             "@type": "PropertyValue",
             "name": "rx",
-            "value": -0.234210357
+            "value": -0.5279682
         },
         {
             "@type": "PropertyValue",
             "name": "ry",
-            "value": 0.258375823
+            "value": 0.586975455
         },
         {
             "@type": "PropertyValue",
             "name": "rz",
-            "value": 0.62788707
+            "value": 0.365535766
         },
         {
             "@type": "PropertyValue",
             "name": "w",
-            "value": -0.6958056
+            "value": -0.493044764
         }
     ],
     "description": "Continuous game object data with full schema"

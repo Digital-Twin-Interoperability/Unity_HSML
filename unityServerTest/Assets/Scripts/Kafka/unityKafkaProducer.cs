@@ -4,6 +4,7 @@ using System.Text;
 using UnityEngine;
 using Confluent.Kafka;
 using Newtonsoft.Json.Linq;
+using System.Numerics; // For System.Numerics.Quaternion
 
 public class unityKafkaProducer : MonoBehaviour
 {
@@ -11,8 +12,8 @@ public class unityKafkaProducer : MonoBehaviour
     private string kafkaTopic = "unity-hsml-topic";
 
     // Variables to store the last sent position and rotation
-    private Vector3 lastPosition;
-    private Quaternion lastRotation;
+    private UnityEngine.Vector3 lastPosition;
+    private UnityEngine.Quaternion lastRotation;
 
     void Start()
     {
@@ -73,6 +74,10 @@ public class unityKafkaProducer : MonoBehaviour
         try
         {
             string schemaId = GenerateUniqueSchemaId(); // Generate unique schema ID
+
+            // Adjust the rotation using the provided quaternion transformation
+            UnityEngine.Quaternion adjustedRotation = AdjustRotationAxis(transform.rotation);
+
             JObject hsmlMessage = new JObject
             {
                 { "@context", "https://schema.org" },
@@ -90,12 +95,12 @@ public class unityKafkaProducer : MonoBehaviour
                     "additionalProperty", new JArray
                     {
                         new JObject { { "@type", "PropertyValue" }, { "name", "xCoordinate" }, { "value", transform.position.x } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "yCoordinate" }, { "value", transform.position.y } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "zCoordinate" }, { "value", transform.position.z } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "rx" }, { "value", transform.rotation.x } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "ry" }, { "value", transform.rotation.y } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "rz" }, { "value", transform.rotation.z } },
-                        new JObject { { "@type", "PropertyValue" }, { "name", "w" }, { "value", transform.rotation.w } }
+                        new JObject { { "@type", "PropertyValue" }, { "name", "yCoordinate" }, { "value", transform.position.z } },
+                        new JObject { { "@type", "PropertyValue" }, { "name", "zCoordinate" }, { "value", transform.position.y } },
+                        new JObject { { "@type", "PropertyValue" }, { "name", "rx" }, { "value", adjustedRotation.x } },
+                        new JObject { { "@type", "PropertyValue" }, { "name", "ry" }, { "value", adjustedRotation.y } },
+                        new JObject { { "@type", "PropertyValue" }, { "name", "rz" }, { "value", adjustedRotation.z } },
+                        new JObject { { "@type", "PropertyValue" }, { "name", "w" }, { "value", adjustedRotation.w } }
                     }
                 },
                 { "description", "Continuous game object data with full schema" }
@@ -109,6 +114,24 @@ public class unityKafkaProducer : MonoBehaviour
         {
             Debug.LogError($"Error sending full HSML message: {e.Message}");
         }
+    }
+
+    // Function to adjust the rotation quaternion before sending it
+    private UnityEngine.Quaternion AdjustRotationAxis(UnityEngine.Quaternion rotation)
+    {
+        // Convert UnityEngine Quaternion to System.Numerics Quaternion for manipulation
+        var originalRotQuat = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+
+        // Apply the rotations based on the given axis and angle
+        var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
+        var rotationYQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
+
+        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
+        worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
+        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+
+        // Convert back to UnityEngine Quaternion and return
+        return new UnityEngine.Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
     }
 
     private void OnDestroy()

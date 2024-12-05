@@ -16,7 +16,7 @@ consumer = Consumer(conf)
 consumer.subscribe(['unity-hsml-topic'])
 
 # File path for the output JSON file
-file_path = r"C:\Users\Jared\Desktop\kafkaOmniConsumer_1.json"
+file_path = r"C:\Users\Jared\Desktop\kafkaUnrealConsumer_2.json"
 
 try:
     while True:

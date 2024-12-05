@@ -58,7 +58,7 @@ class FileReaderScript(BehaviorScript):
                     w = values_of_interest.get("w", 1)
 
                     # Desired world position and rotation
-                    desired_position = Gf.Vec3d(x, z, y)
+                    desired_position = Gf.Vec3d(x, y, z)
                     desired_rotation = Gf.Quatf(w, rx, ry, rz)
 
                     # Compute and apply local transform

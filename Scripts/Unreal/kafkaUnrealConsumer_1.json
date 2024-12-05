@@ -1,58 +1,53 @@
 {
-    "@context": "https://schema.org",
-    "@type": "3DModel",
-    "name": "Unity_Viper_Frame",
-    "identifier": {
-        "@type": "PropertyValue",
-        "propertyID": "618310748CBBBF85A2CA1E49C78DEF24",
-        "value": "Unity_Viper_Frame-001"
-    },
-    "url": "https://example.com/models/Unity_Viper_Frame-001",
-    "creator": {
-        "@type": "Person",
-        "name": "Your Name"
-    },
-    "dateCreated": "2024-12-04",
-    "dateModified": "2024-12-04",
-    "encodingFormat": "application/x-obj",
-    "contentUrl": "https://example.com/models/3dmodel-001.obj",
-    "additionalType": "https://schema.org/CreativeWork",
-    "additionalProperty": [
-        {
-            "@type": "PropertyValue",
-            "name": "xCoordinate",
-            "value": -4.49597073
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "yCoordinate",
-            "value": -0.426965237
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "zCoordinate",
-            "value": -6.135555
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "rx",
-            "value": -0.234210357
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "ry",
-            "value": 0.258375823
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "rz",
-            "value": 0.62788707
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "w",
-            "value": -0.6958056
-        }
-    ],
-    "description": "Continuous game object data with full schema"
+	"@context": "https://schema.org",
+	"@type": "3DModel",
+	"name": "unrealActor",
+	"identifier":
+	{
+		"@type": "PropertyValue",
+		"propertyID": "schema_id",
+		"value": "unrealActor-001"
+	},
+	"url": "objectLink",
+	"creator":
+	{
+		"@type": "Person",
+		"name": "Jared Carrillo"
+	},
+	"dateCreated": "12-05-24",
+	"dateModified": "12-05-24",
+	"encodingFormat": "application/x-obj",
+	"contentUrl": "https://example.com/models/3dmodel-001.obj",
+	"additionalType": "https://schema.org/CreativeWork",
+	"additionalProperty": [
+		{
+			"name": "xCoordinate",
+			"value": 424.49654051476409
+		},
+		{
+			"name": "yCoordinate",
+			"value": -269.99999999999994
+		},
+		{
+			"name": "zCoordinate",
+			"value": -49.999998861301549
+		},
+		{
+			"name": "rx",
+			"value": 0
+		},
+		{
+			"name": "ry",
+			"value": 0
+		},
+		{
+			"name": "rz",
+			"value": 0
+		},
+		{
+			"name": "w",
+			"value": 1
+		}
+	],
+	"description": "Unreal engine object"
 }

@@ -4,17 +4,20 @@ using System.Threading;
 using UnityEngine;
 using Confluent.Kafka;
 using Newtonsoft.Json.Linq;
+using System.Numerics; // For System.Numerics.Quaternion and System.Numerics.Vector3
 
 public class omniKafkaConsumer : MonoBehaviour
 {
     private IConsumer<string, string> consumer;
     private string kafkaTopic = "omni-hsml-topic";
-    private Vector3 targetPosition;
+    private UnityEngine.Vector3 targetPosition; // UnityEngine.Vector3 for position
+    private UnityEngine.Quaternion targetRotation; // UnityEngine.Quaternion for rotation
     private Thread consumerThread;
     private bool isRunning = true;
 
-    // Thread-safe queue to store received positions
-    private ConcurrentQueue<Vector3> positionQueue = new ConcurrentQueue<Vector3>();
+    // Thread-safe queues to store positions and rotations
+    private ConcurrentQueue<UnityEngine.Vector3> positionQueue = new ConcurrentQueue<UnityEngine.Vector3>(); // UnityEngine.Vector3
+    private ConcurrentQueue<UnityEngine.Quaternion> rotationQueue = new ConcurrentQueue<UnityEngine.Quaternion>(); // UnityEngine.Quaternion
 
     void Start()
     {
@@ -37,15 +40,25 @@ public class omniKafkaConsumer : MonoBehaviour
 
     void Update()
     {
-        // Process queued positions in the main thread
-        while (positionQueue.TryDequeue(out Vector3 newPosition))
+        // Process queued positions and rotations in the main thread
+        while (positionQueue.TryDequeue(out UnityEngine.Vector3 newPosition))
         {
             targetPosition = newPosition;
             Debug.Log($"Updated target position to: {targetPosition}");
         }
 
+        while (rotationQueue.TryDequeue(out UnityEngine.Quaternion newRotation))
+        {
+            // Adjust the rotation using the function provided
+            targetRotation = AdjustRotationAxis(newRotation);
+            Debug.Log($"Updated target rotation to: {targetRotation.eulerAngles}");
+        }
+
         // Smoothly move the GameObject to the target position
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f);
+        transform.position = UnityEngine.Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f);
+
+        // Apply the rotation to the GameObject
+        transform.rotation = UnityEngine.Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
     }
 
     private void ReadKafkaMessages()
@@ -63,18 +76,28 @@ public class omniKafkaConsumer : MonoBehaviour
                     // Parse the JSON message
                     var message = JObject.Parse(consumeResult.Value);
 
-                    // Extract position data from additionalProperty
+                    // Extract position data
                     float x = ExtractPropertyValue(message, "xCoordinate");
                     float y = ExtractPropertyValue(message, "yCoordinate");
                     float z = ExtractPropertyValue(message, "zCoordinate");
 
-                    // Convert from cm to meters
-                    x /= 100.0f;
-                    y /= 100.0f;
-                    z /= 100.0f;
+                    // Extract quaternion data (rx, ry, rz, w)
+                    float rx = ExtractPropertyValue(message, "rx");
+                    float ry = ExtractPropertyValue(message, "ry");
+                    float rz = ExtractPropertyValue(message, "rz");
+                    float w = ExtractPropertyValue(message, "w");
+
+                    // Convert from cm to meters for position
+                    x /= 1.0f;
+                    y /= 1.0f;
+                    z /= 1.0f;
 
                     // Enqueue the position for the main thread
-                    positionQueue.Enqueue(new Vector3(x, y, z));
+                    positionQueue.Enqueue(new UnityEngine.Vector3(x, z, y));
+
+                    // Convert quaternion values to a UnityEngine.Quaternion object and enqueue it
+                    UnityEngine.Quaternion rotation = new UnityEngine.Quaternion(rx, ry, rz, w);
+                    rotationQueue.Enqueue(rotation);
                 }
             }
             catch (ConsumeException e)
@@ -108,6 +131,24 @@ public class omniKafkaConsumer : MonoBehaviour
 
         Debug.LogWarning($"Property '{propertyName}' not found in message.");
         return 0f;
+    }
+
+    // Function to adjust the rotation as per your requirements
+    private UnityEngine.Quaternion AdjustRotationAxis(UnityEngine.Quaternion rotation)
+    {
+        // Convert UnityEngine Quaternion to System.Numerics Quaternion for manipulation
+        var originalRotQuat = new System.Numerics.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
+
+        // Apply the rotations based on the given axis and angle
+        var rotationXQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(1, 0, 0), (float)-Math.PI / 2);
+        var rotationYQuat = System.Numerics.Quaternion.CreateFromAxisAngle(new System.Numerics.Vector3(0, 1, 0), (float)Math.PI);
+
+        var worldRotation = System.Numerics.Quaternion.Multiply(rotationYQuat, rotationXQuat);
+        worldRotation = System.Numerics.Quaternion.Multiply(originalRotQuat, worldRotation);
+        worldRotation = System.Numerics.Quaternion.Multiply(rotationXQuat, worldRotation);
+
+        // Convert back to UnityEngine Quaternion and return
+        return new UnityEngine.Quaternion(-worldRotation.X, -worldRotation.Y, worldRotation.Z, worldRotation.W);
     }
 
     private void OnDestroy()

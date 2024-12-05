@@ -1,66 +1,56 @@
 import json
-import os
-import time
 from confluent_kafka import Consumer, KafkaException, KafkaError
 
-# Kafka configuration
-kafka_broker = '192.168.50.133:9092'
-topic = 'unreal-hsml-topic'
-group_id = 'my_consumer_group'
+# Configuration for Kafka Consumer
+conf = {
+    'bootstrap.servers': '192.168.50.133:9092',  # Kafka broker address
+    'group.id': 'my-consumer2-group',  # Consumer group ID
+    'auto.offset.reset': 'latest',  # Start reading from the latest message
+    'enable.auto.commit': False,  # Don't commit offsets automatically
+}
 
-# File path to write the JSON data
-file_path = r'C:\Users\Jared\Desktop\kafkaOmniConsumer_2.json'
+# Create Consumer instance
+consumer = Consumer(conf)
 
-# Create Consumer instance with updated offset reset to 'latest'
-consumer = Consumer({
-    'bootstrap.servers': kafka_broker,
-    'group.id': group_id,
-    'auto.offset.reset': 'latest'  # Only consume the most recent messages
-})
+# Subscribe to the topic
+consumer.subscribe(['omni-hsml-topic'])
 
-# Function to write data to a JSON file
-def write_to_file(data):
-    try:
-        # Open the file in write mode to overwrite with the latest data
-        with open(file_path, 'w') as f:
-            json.dump(data, f, indent=4)
-        print("Data written to:", file_path)
-    except Exception as e:
-        print(f"Error writing to file: {e}")
+# File path for the output JSON file
+file_path = r"C:\Users\Jared\Desktop\kafkaOmniConsumer_2.json"
 
-# Subscribe to Kafka topic
-consumer.subscribe([topic])
-
-# Continuously consume messages from Kafka and write to file when data changes
 try:
     while True:
-        # Poll for new messages
-        msg = consumer.poll(timeout=1.0)  # Timeout in seconds
+        # Poll for messages
+        msg = consumer.poll(timeout=1.0)  # Timeout after 1 second if no message
 
         if msg is None:
-            # No new message, continue polling
-            continue
-        elif msg.error():
-            # Handle Kafka error
+            continue  # No message available within timeout
+        if msg.error():
             if msg.error().code() == KafkaError._PARTITION_EOF:
+                # End of partition reached (only log this)
                 continue
             else:
                 raise KafkaException(msg.error())
-        else:
-            # New message received
-            print("Received message: ", msg.value().decode('utf-8'))
-            
-            # Parse the message value (assuming it's JSON)
-            try:
-                data = json.loads(msg.value().decode('utf-8'))
-                write_to_file(data)
-            except json.JSONDecodeError as e:
-                print(f"Error decoding JSON: {e}")
-        
-        time.sleep(1)  # Optional: Add a small delay to avoid high CPU usage
+
+        # Assuming the message is already in JSON format
+        message_data = msg.value().decode('utf-8')  # Decode the message
+
+        try:
+            # Try to parse the message as JSON
+            parsed_message = json.loads(message_data)
+
+            # Open the file in write mode to overwrite the content with each message
+            with open(file_path, 'w', encoding='utf-8') as file:
+                # Write the parsed JSON message to the file, overwriting it each time
+                json.dump(parsed_message, file, ensure_ascii=False, indent=4)
+                print(f"Written message to {file_path}")
+
+        except json.JSONDecodeError:
+            print("Received message is not valid JSON, skipping...")
 
 except KeyboardInterrupt:
-    print("Consumer interrupted, closing...")
+    print("Consumer interrupted")
+
 finally:
-    # Close the consumer gracefully
+    # Close the consumer cleanly
     consumer.close()
