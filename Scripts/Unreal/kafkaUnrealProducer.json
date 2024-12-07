@@ -14,46 +14,39 @@
 		"@type": "Person",
 		"name": "Jared Carrillo"
 	},
-	"dateCreated": "11-12-23",
-	"dateModified": "12-05-24",
+	"dateCreated": "12-06-24",
+	"dateModified": "12-06-24",
 	"encodingFormat": "application/x-obj",
 	"contentUrl": "https://example.com/models/3dmodel-001.obj",
 	"additionalType": "https://schema.org/CreativeWork",
 	"additionalProperty": [
 		{
-			"@type": "PropertyValue",
 			"name": "xCoordinate",
-			"value": 12.625861403042126
+			"value": 424.49654051476409
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "yCoordinate",
-			"value": 4.0042406858753523
+			"value": -269.99999999999994
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "zCoordinate",
-			"value": -0.046607494691424937
+			"value": -49.999998861301549
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "rx",
-			"value": -0
+			"value": 0
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "ry",
 			"value": 0
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "rz",
-			"value": -0.35816406644629328
+			"value": 0
 		},
 		{
-			"@type": "PropertyValue",
 			"name": "w",
-			"value": 0.93365866434508882
+			"value": 1
 		}
 	],
 	"description": "Unreal engine object"

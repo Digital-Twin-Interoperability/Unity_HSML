@@ -4,7 +4,7 @@
     "name": "Unity_Viper_Frame",
     "identifier": {
         "@type": "PropertyValue",
-        "propertyID": "26FD623831FCA659C26612793BF870FC",
+        "propertyID": "42560C2F1AA9D2294CE2D4A0493F84EE",
         "value": "Unity_Viper_Frame-001"
     },
     "url": "https://example.com/models/Unity_Viper_Frame-001",
@@ -12,8 +12,8 @@
         "@type": "Person",
         "name": "Your Name"
     },
-    "dateCreated": "2024-12-04",
-    "dateModified": "2024-12-04",
+    "dateCreated": "2024-12-06",
+    "dateModified": "2024-12-06",
     "encodingFormat": "application/x-obj",
     "contentUrl": "https://example.com/models/3dmodel-001.obj",
     "additionalType": "https://schema.org/CreativeWork",
@@ -21,37 +21,37 @@
         {
             "@type": "PropertyValue",
             "name": "xCoordinate",
-            "value": -7.079345
+            "value": 8.603406
         },
         {
             "@type": "PropertyValue",
             "name": "yCoordinate",
-            "value": -1.03300476
+            "value": -5.30137157
         },
         {
             "@type": "PropertyValue",
             "name": "zCoordinate",
-            "value": -8.85412
+            "value": -0.297959328
         },
         {
             "@type": "PropertyValue",
             "name": "rx",
-            "value": -0.5279682
+            "value": -0.510001957
         },
         {
             "@type": "PropertyValue",
             "name": "ry",
-            "value": 0.586975455
+            "value": -0.4819667
         },
         {
             "@type": "PropertyValue",
             "name": "rz",
-            "value": 0.365535766
+            "value": -0.4926929
         },
         {
             "@type": "PropertyValue",
             "name": "w",
-            "value": -0.493044764
+            "value": 0.5146455
         }
     ],
     "description": "Continuous game object data with full schema"

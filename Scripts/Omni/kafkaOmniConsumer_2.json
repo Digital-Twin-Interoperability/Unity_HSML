@@ -1,19 +1,19 @@
 {
     "@context": "https://schema.org",
     "@type": "3DModel",
-    "name": "Unity_Viper_Frame",
+    "name": "Chassis",
     "identifier": {
         "@type": "PropertyValue",
-        "propertyID": "618310748CBBBF85A2CA1E49C78DEF24",
-        "value": "Unity_Viper_Frame-001"
+        "propertyID": "schema_Chassis",
+        "value": "Chassis-001"
     },
-    "url": "https://example.com/models/Unity_Viper_Frame-001",
+    "url": "https://example.com/3dmodel",
     "creator": {
         "@type": "Person",
-        "name": "Your Name"
+        "name": "Jared Carrillo"
     },
-    "dateCreated": "2024-12-04",
-    "dateModified": "2024-12-04",
+    "dateCreated": "2024-01-01",
+    "dateModified": "2024-12-06T15:31:17",
     "encodingFormat": "application/x-obj",
     "contentUrl": "https://example.com/models/3dmodel-001.obj",
     "additionalType": "https://schema.org/CreativeWork",
@@ -21,38 +21,38 @@
         {
             "@type": "PropertyValue",
             "name": "xCoordinate",
-            "value": -4.49597073
+            "value": 9.182339668273928
         },
         {
             "@type": "PropertyValue",
             "name": "yCoordinate",
-            "value": -0.426965237
+            "value": -2.59356689453125
         },
         {
             "@type": "PropertyValue",
             "name": "zCoordinate",
-            "value": -6.135555
+            "value": -0.5062984824180603
         },
         {
             "@type": "PropertyValue",
             "name": "rx",
-            "value": -0.234210357
+            "value": -0.02488975564479701
         },
         {
             "@type": "PropertyValue",
             "name": "ry",
-            "value": 0.258375823
+            "value": 0.05244587452827391
         },
         {
             "@type": "PropertyValue",
             "name": "rz",
-            "value": 0.62788707
+            "value": -0.07314408341749085
         },
         {
             "@type": "PropertyValue",
             "name": "w",
-            "value": -0.6958056
+            "value": 0.9956303899389182
         }
     ],
-    "description": "Continuous game object data with full schema"
+    "description": "Rover data with world position and rotation"
 }

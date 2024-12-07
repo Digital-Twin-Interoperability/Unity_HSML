@@ -4,7 +4,7 @@ from confluent_kafka import Consumer, KafkaException, KafkaError
 # Configuration for Kafka Consumer
 conf = {
     'bootstrap.servers': '192.168.50.133:9092',  # Kafka broker address
-    'group.id': 'my-consumer-group',  # Consumer group ID
+    'group.id': 'my-consumer14-group',  # Consumer group ID
     'auto.offset.reset': 'latest',  # Start reading from the latest message
     'enable.auto.commit': False,  # Don't commit offsets automatically
 }
