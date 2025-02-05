@@ -34,28 +34,23 @@ class FileReaderScript(BehaviorScript):
                 with open(self.file_path, 'r') as file:
                     data = json.load(file)
 
-                    # Extract additionalProperty values
+                    # Extract `position`, `rotation`, and `w` values
+                    position = data.get("position", [])
+                    rotation = data.get("rotation", [])
                     additional_properties = data.get("additionalProperty", [])
 
-                    # Create a dictionary for the values of interest
-                    values_of_interest = {}
-                    for prop in additional_properties:
-                        name = prop.get("name", "")
-                        value = prop.get("value", None)
-                        if name in ["xCoordinate", "yCoordinate", "zCoordinate", "rx", "ry", "rz", "w"]:
-                            values_of_interest[name] = value
+                    # Extract coordinates
+                    x = next((prop.get("value", 0) for prop in position if prop.get("name") == "xCoordinate"), 0)
+                    y = next((prop.get("value", 0) for prop in position if prop.get("name") == "yCoordinate"), 0)
+                    z = next((prop.get("value", 0) for prop in position if prop.get("name") == "zCoordinate"), 0)
 
-                    # Print the extracted values
-                    print(f"Extracted values: {values_of_interest}")
+                    # Extract rotation values
+                    rx = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "rx"), 0)
+                    ry = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "ry"), 0)
+                    rz = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "rz"), 0)
 
-                    # Ensure required values exist
-                    x = values_of_interest.get("xCoordinate", 0)
-                    y = values_of_interest.get("yCoordinate", 0)
-                    z = values_of_interest.get("zCoordinate", 0)
-                    rx = values_of_interest.get("rx", 0)
-                    ry = values_of_interest.get("ry", 0)
-                    rz = values_of_interest.get("rz", 0)
-                    w = values_of_interest.get("w", 1)
+                    # Extract `w` value
+                    w = next((prop.get("value", 1) for prop in additional_properties if prop.get("name") == "w"), 1)
 
                     # Desired world position and rotation
                     desired_position = Gf.Vec3d(x, y, z)

@@ -3,7 +3,7 @@ from pxr import Gf, UsdGeom, Usd
 import omni.usd
 from confluent_kafka import Producer
 import json
-from datetime import datetime  # Added for date handling
+from datetime import datetime
 
 # Kafka Producer configuration
 producer_conf = {
@@ -21,7 +21,7 @@ kafka_topic = 'omni-hsml-topic'
 previous_states = {}
 
 # Function to send full message
-def send_full_message(schema_id, modelName, modelNumber, objectLink, creatorName, creationDate, modifiedDate, x, y, z, rx, ry, rz, w):
+def send_full_message(schema_id, modelName, modelNumber, objectLink, creatorName, creationDate, modifiedDate, position, rotation):
     hsml_message = {
         "@context": "https://schema.org",
         "@type": "3DModel",
@@ -41,14 +41,16 @@ def send_full_message(schema_id, modelName, modelNumber, objectLink, creatorName
         "encodingFormat": "application/x-obj",
         "contentUrl": "https://example.com/models/3dmodel-001.obj",
         "additionalType": "https://schema.org/CreativeWork",
-        "additionalProperty": [
-            {"@type": "PropertyValue", "name": "xCoordinate", "value": x},
-            {"@type": "PropertyValue", "name": "yCoordinate", "value": y},
-            {"@type": "PropertyValue", "name": "zCoordinate", "value": z},
-            {"@type": "PropertyValue", "name": "rx", "value": rx},
-            {"@type": "PropertyValue", "name": "ry", "value": ry},
-            {"@type": "PropertyValue", "name": "rz", "value": rz},
-            {"@type": "PropertyValue", "name": "w", "value": w}
+        "position": [
+            {"@type": "PropertyValue", "name": "x", "value": position[0]},
+            {"@type": "PropertyValue", "name": "y", "value": position[1]},
+            {"@type": "PropertyValue", "name": "z", "value": position[2]}
+        ],
+        "rotation": [
+            {"@type": "PropertyValue", "name": "rx", "value": rotation[0]},
+            {"@type": "PropertyValue", "name": "ry", "value": rotation[1]},
+            {"@type": "PropertyValue", "name": "rz", "value": rotation[2]},
+            {"@type": "PropertyValue", "name": "w", "value": rotation[3]}
         ],
         "description": "Rover data with world position and rotation"
     }
@@ -96,23 +98,26 @@ class OmniControls(BehaviorScript):
         rotation_quaternion = rotation.GetQuaternion()
         return {
             "translate": translate,
-            "rotation": {
-                "rx": rotation_quaternion.GetReal(),
-                "ry": rotation_quaternion.GetImaginary()[0],
-                "rz": rotation_quaternion.GetImaginary()[1],
-                "w": rotation_quaternion.GetImaginary()[2]
-            }
+            "rotation": [
+                rotation_quaternion.GetReal(),
+                rotation_quaternion.GetImaginary()[0],
+                rotation_quaternion.GetImaginary()[1],
+                rotation_quaternion.GetImaginary()[2]
+            ]
         }
 
-    def has_state_changed(self, prim_name, x, y, z, rx, ry, rz, w):
-        # Always check and update the state
+    def has_state_changed(self, prim_name, position, rotation):
         prev = previous_states[prim_name]
-        has_changed = (prev["x"] != x or prev["y"] != y or prev["z"] != z or
-                       prev["rx"] != rx or prev["ry"] != ry or prev["rz"] != rz or prev["w"] != w)
+        has_changed = (prev["x"] != position[0] or prev["y"] != position[1] or prev["z"] != position[2] or
+                       prev["rx"] != rotation[0] or prev["ry"] != rotation[1] or 
+                       prev["rz"] != rotation[2] or prev["w"] != rotation[3])
 
         if has_changed:
             # Update the previous state
-            previous_states[prim_name] = {"x": x, "y": y, "z": z, "rx": rx, "ry": ry, "rz": rz, "w": w}
+            previous_states[prim_name] = {
+                "x": position[0], "y": position[1], "z": position[2],
+                "rx": rotation[0], "ry": rotation[1], "rz": rotation[2], "w": rotation[3]
+            }
 
         return has_changed
 
@@ -122,12 +127,11 @@ class OmniControls(BehaviorScript):
             prim_name = prim.GetName()
             schema_id = f"schema_{prim_name}"
             transform = self.get_transform(prim)
-            x, y, z = transform["translate"][0], transform["translate"][1], transform["translate"][2]
-            rx, ry, rz, w = (transform["rotation"]["rx"], transform["rotation"]["ry"],
-                             transform["rotation"]["rz"], transform["rotation"]["w"])
+            position = [transform["translate"][0], transform["translate"][1], transform["translate"][2]]
+            rotation = transform["rotation"]
 
             # Check for state change before sending a message
-            if self.has_state_changed(prim_name, x, y, z, rx, ry, rz, w):
+            if self.has_state_changed(prim_name, position, rotation):
                 send_full_message(
                     schema_id=schema_id,
                     modelName=prim_name,
@@ -136,5 +140,6 @@ class OmniControls(BehaviorScript):
                     creatorName="Jared Carrillo",
                     creationDate="2024-01-01",
                     modifiedDate=datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-                    x=x, y=y, z=z, rx=rx, ry=ry, rz=rz, w=w
+                    position=position,
+                    rotation=rotation
                 )
