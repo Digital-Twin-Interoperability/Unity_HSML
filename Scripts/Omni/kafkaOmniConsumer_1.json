@@ -1,58 +1,63 @@
 {
-    "@context": "https://schema.org",
-    "@type": "3DModel",
-    "name": "Unity_Viper_Frame",
-    "identifier": {
-        "@type": "PropertyValue",
-        "propertyID": "42560C2F1AA9D2294CE2D4A0493F84EE",
-        "value": "Unity_Viper_Frame-001"
+  "@context": "https://schema.org",
+  "@type": "3DModel",
+  "name": "Viper",
+  "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "42560C2F1AA9D2294CE2D4A0493F84EE",
+    "value": "Unity_Viper_Frame-001"
+  },
+  "url": "1vL4DzWrArmeqXvYI8dc4ANpdOdNj9SME",
+  "creator": {
+    "@type": "Person",
+    "name": "Your Name"
+  },
+  "dateCreated": "2024-12-06",
+  "dateModified": "2024-12-06",
+  "encodingFormat": "application/x-obj",
+  "contentUrl": "https://example.com/models/3dmodel-001.obj",
+  "additionalType": "https://schema.org/CreativeWork",
+  "additionalProperty": [
+    {
+      "@type": "PropertyValue",
+      "name": "xCoordinate",
+      "value": 8.603406
     },
-    "url": "https://example.com/models/Unity_Viper_Frame-001",
-    "creator": {
-        "@type": "Person",
-        "name": "Your Name"
+    {
+      "@type": "PropertyValue",
+      "name": "yCoordinate",
+      "value": -5.30137157
     },
-    "dateCreated": "2024-12-06",
-    "dateModified": "2024-12-06",
-    "encodingFormat": "application/x-obj",
-    "contentUrl": "https://example.com/models/3dmodel-001.obj",
-    "additionalType": "https://schema.org/CreativeWork",
-    "additionalProperty": [
-        {
-            "@type": "PropertyValue",
-            "name": "xCoordinate",
-            "value": 8.603406
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "yCoordinate",
-            "value": -5.30137157
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "zCoordinate",
-            "value": -0.297959328
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "rx",
-            "value": -0.510001957
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "ry",
-            "value": -0.4819667
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "rz",
-            "value": -0.4926929
-        },
-        {
-            "@type": "PropertyValue",
-            "name": "w",
-            "value": 0.5146455
-        }
-    ],
-    "description": "Continuous game object data with full schema"
+    {
+      "@type": "PropertyValue",
+      "name": "zCoordinate",
+      "value": -0.297959328
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "rx",
+      "value": -0.510001957
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "ry",
+      "value": -0.4819667
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "rz",
+      "value": -0.4926929
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "w",
+      "value": 0.5146455
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "scale",
+      "value": 100
+    }
+  ],
+  "description": "Continuous game object data with full schema"
 }

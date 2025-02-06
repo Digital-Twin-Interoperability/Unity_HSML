@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 
 public class FBXDownloader : MonoBehaviour
 {
-    private string saveDirectory = "C:/Users/Jared/Desktop/HSML_Models";
-    private string jsonDirectory = "C:/Users/Jared/Desktop/HSML_Models/HSML";
+    private string saveDirectory = "C:/Users/PARD1/Desktop/HSML_Models";
+    private string jsonDirectory = "C:/Users/PARD1/Desktop/HSML_Models/HSML";
 
     void Start()
     {
@@ -118,12 +118,14 @@ public class FBXDownloader : MonoBehaviour
     {
         Vector3 position = ReadPositionFromJson(jsonData);
         Quaternion rotation = ReadRotationFromJson(jsonData);
+        Vector3 scale = ReadScaleFromJson(jsonData);
 
         GameObject loadedModel = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
         if (loadedModel != null)
         {
-            Instantiate(loadedModel, position, rotation);
-            Debug.Log("Model Loaded Successfully at Position: " + position);
+            GameObject instance = Instantiate(loadedModel, position, rotation);
+            instance.transform.localScale = scale;
+            Debug.Log("Model Loaded Successfully at Position: " + position + " with Scale: " + scale);
         }
         else
         {
@@ -148,5 +150,11 @@ public class FBXDownloader : MonoBehaviour
         float w = (float)jsonData["additionalProperty"][6]["value"];
 
         return new Quaternion(rx, ry, rz, w);
+    }
+
+    Vector3 ReadScaleFromJson(JObject jsonData)
+    {
+        float scaleValue = (float)jsonData["additionalProperty"][7]["value"];
+        return new Vector3(scaleValue, scaleValue, scaleValue);
     }
 }
