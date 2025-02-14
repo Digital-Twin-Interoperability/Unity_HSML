@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 
 public class FBXDownloader : MonoBehaviour
 {
-    private string saveDirectory = "C:/Users/PARD1/Desktop/HSML_Models";
-    private string jsonDirectory = "C:/Users/PARD1/Desktop/HSML_Models/HSML";
+    private string saveDirectory = "C:/Users/Jared/Desktop/HSML_Models";
+    private string jsonDirectory = "C:/Users/Jared/Desktop/HSML_Models/HSML";
 
     void Start()
     {
