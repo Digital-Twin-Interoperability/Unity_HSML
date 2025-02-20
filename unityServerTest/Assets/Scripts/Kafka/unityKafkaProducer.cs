@@ -6,7 +6,7 @@ using Confluent.Kafka;
 using Newtonsoft.Json.Linq;
 using System.Numerics; // For System.Numerics.Quaternion
 
-public class UnityKafkaProducer : MonoBehaviour
+public class unityKafkaProducer : MonoBehaviour
 {
     private IProducer<string, string> producer;
     private string kafkaTopic = "unity-hsml-topic";
@@ -80,7 +80,7 @@ public class UnityKafkaProducer : MonoBehaviour
                         { "value", $"{gameObject.name}-001" }
                     }
                 },
-                { "url", $"https://example.com/models/{gameObject.name}-001" },
+                { "url", "1GBcmwJh2rQ4CSR3_CiDyF6oVdOxz6hLG" },
                 {
                     "creator", new JObject
                     {
@@ -124,7 +124,8 @@ public class UnityKafkaProducer : MonoBehaviour
                 {
                     "additionalProperty", new JArray
                     {
-                        new JObject { { "@type", "schema:PropertyValue" }, { "name", "w" }, { "value", adjustedRotation.w } }
+                        new JObject { { "@type", "schema:PropertyValue" }, { "name", "w" }, { "value", adjustedRotation.w } },
+                        new JObject { { "@type", "schema:PropertyValue" }, { "name", "scale" }, { "value", 100 } } // Added scale property
                     }
                 }
             };

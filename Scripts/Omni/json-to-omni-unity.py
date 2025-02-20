@@ -35,22 +35,22 @@ class FileReaderScript(BehaviorScript):
                     data = json.load(file)
 
                     # Extract `position`, `rotation`, and `w` values
-                    position = data.get("position", [])
-                    rotation = data.get("rotation", [])
-                    additional_properties = data.get("additionalProperty", [])
+                    position = {prop["name"]: prop["value"] for prop in data.get("position", [])}
+                    rotation = {prop["name"]: prop["value"] for prop in data.get("rotation", [])}
+                    additional_properties = {prop["name"]: prop["value"] for prop in data.get("additionalProperty", [])}
 
                     # Extract coordinates
-                    x = next((prop.get("value", 0) for prop in position if prop.get("name") == "xCoordinate"), 0)
-                    y = next((prop.get("value", 0) for prop in position if prop.get("name") == "yCoordinate"), 0)
-                    z = next((prop.get("value", 0) for prop in position if prop.get("name") == "zCoordinate"), 0)
+                    x = position.get("xCoordinate", 0)
+                    z = position.get("yCoordinate", 0)
+                    y = position.get("zCoordinate", 0)
 
                     # Extract rotation values
-                    rx = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "rx"), 0)
-                    ry = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "ry"), 0)
-                    rz = next((prop.get("value", 0) for prop in rotation if prop.get("name") == "rz"), 0)
+                    rx = rotation.get("rx", 0)
+                    ry = rotation.get("ry", 0)
+                    rz = rotation.get("rz", 0)
 
                     # Extract `w` value
-                    w = next((prop.get("value", 1) for prop in additional_properties if prop.get("name") == "w"), 1)
+                    w = additional_properties.get("w", 1)
 
                     # Desired world position and rotation
                     desired_position = Gf.Vec3d(x, y, z)
